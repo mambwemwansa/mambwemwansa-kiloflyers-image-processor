@@ -54,8 +54,8 @@ public class ImageProcessingService {
 						AirtableResponse.class);
 				List<AirtableRecord> records = airtableResponse.getRecords();
 				for (AirtableRecord airtableRecord : records) {
-					//removeBackground(airtableRecord);
-					uploadNoBckImageToAirtable("https://kiloflyers-image-processor-35039419a88c.herokuapp.com/images/kikitoo17_461600438_1230252561528848_4648918935739787266_n.jpg",airtableRecord.getId());
+					removeBackground(airtableRecord);
+					//uploadNoBckImageToAirtable("https://kiloflyers-image-processor-35039419a88c.herokuapp.com/images/kikitoo17_461600438_1230252561528848_4648918935739787266_n.jpg",airtableRecord.getId());
 					uploadToBeFramedImageToAirtable(
 							"https://wallpapers.com/images/hd/fantastic-image-of-falling-spaceman-40xgzkhbx0i01m7r.jpg",
 							airtableRecord.getId());

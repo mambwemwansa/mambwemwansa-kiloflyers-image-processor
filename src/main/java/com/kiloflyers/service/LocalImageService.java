@@ -34,7 +34,7 @@ public class LocalImageService {
       } 
       throw throwable;
     } 
-    return this.baseUrl + "/images/" + this.baseUrl;
+    return this.baseUrl + "/images/" + fileName;
   }
   
   public String downloadImageToStaticFolder(String imageUrl, String fileName) throws IOException {
