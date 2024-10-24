@@ -54,10 +54,8 @@ public class ImageProcessingService {
 						AirtableResponse.class);
 				List<AirtableRecord> records = airtableResponse.getRecords();
 				for (AirtableRecord airtableRecord : records) {
-					//removeBackground(airtableRecord);
-					uploadNoBckImageToAirtable(
-							"https://wallpapers.com/images/featured/coolest-pictures-88c269e953ar0aw4.jpg",
-							airtableRecord.getId());
+					removeBackground(airtableRecord);
+					//uploadNoBckImageToAirtable("https://wallpapers.com/images/featured/coolest-pictures-88c269e953ar0aw4.jpg",airtableRecord.getId());
 					uploadToBeFramedImageToAirtable(
 							"https://wallpapers.com/images/hd/fantastic-image-of-falling-spaceman-40xgzkhbx0i01m7r.jpg",
 							airtableRecord.getId());
