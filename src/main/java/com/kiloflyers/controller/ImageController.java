@@ -14,9 +14,6 @@ public class ImageController {
   @Autowired
   private ImageProcessingService imageProcessingService;
   
-  @Autowired
-  private ImageSegmentationService imageSegmentationService;
-  
   @GetMapping({"/"})
   public String showImages(Model model) {
     List<AirtableRecord> records = this.imageProcessingService.fetchUnprocessedRecords();
