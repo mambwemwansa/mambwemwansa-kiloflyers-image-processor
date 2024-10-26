@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -157,32 +158,50 @@ public class ImageReframeService {
 		return outputStream.toByteArray();
 	}
 
+	public static byte[] bufferedImageToByteArray(BufferedImage image, String format) throws IOException {
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			// Write the BufferedImage to the ByteArrayOutputStream in the specified format
+			ImageIO.write(image, format, baos);
+			baos.flush(); // Ensure all data is written out
+			return baos.toByteArray();
+		}
+	}
+
 	private void saveImage(BufferedImage image, String fileName) {
-        if (image == null) {
-            System.err.println("Error: BufferedImage is null. Unable to save the image.");
-            return;
-        }
+		if (image == null) {
+			System.err.println("Error: BufferedImage is null. Unable to save the image.");
+			return;
+		}
 
-        try {
-            // Define the path to the static/framed directory
-            // Assuming you are running the app from the root of the project
-            Path outputPath = Paths.get("src/main/resources/static/framed", fileName);
+		try {
+			byte[] imageBytes = bufferedImageToByteArray(image, "png");
+			saveFramedImageToStaticFolder(imageBytes,fileName);
+			// Use imageBytes as needed, e.g., save to database or send over network
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-            // Create directories if they do not exist
-            Files.createDirectories(outputPath.getParent());
+	}
 
-            // Save the image as a PNG file
-            ImageIO.write(image, "png", outputPath.toFile());
-
-            // Log success message
-            System.out.println("Image saved successfully at " + outputPath.toAbsolutePath());
-        } catch (IOException e) {
-            // Log the error
-            System.err.println("Failed to save image: " + e.getMessage());
-            e.printStackTrace(); // Optionally log the stack trace for debugging
-        }
-    }
-
+	public void saveFramedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
+		String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
+		Path filePath = Paths.get("src/main/resources/static/framed/" + fileName, new String[0]);
+		File directory = new File("src/main/resources/static/framed/");
+		if (!directory.exists())
+			directory.mkdirs();
+		FileOutputStream fos = new FileOutputStream(filePath.toFile());
+		try {
+			fos.write(imageBytes);
+			fos.close();
+		} catch (Throwable throwable) {
+			try {
+				fos.close();
+			} catch (Throwable throwable1) {
+				throwable.addSuppressed(throwable1);
+			}
+			throw throwable;
+		}
+	}
 
 	private String buildImageUrl(String fileName, String folder) {
 		return baseUrl + folder + fileName;
