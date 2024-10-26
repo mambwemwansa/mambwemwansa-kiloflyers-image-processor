@@ -81,6 +81,28 @@ public class LocalImageService {
 		FileUtils.copyURLToFile(url, targetFile);
 		return targetFile.getAbsolutePath();
 	}
+	
+	
+	public String getFramedImageURLFromStaticFolder(byte[] imageBytes, String fileName) throws IOException {
+		String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
+		Path filePath = Paths.get("src/main/resources/static/framed/" + fileName, new String[0]);
+		File directory = new File("src/main/resources/static/framed/");
+		if (!directory.exists())
+			directory.mkdirs();
+		FileOutputStream fos = new FileOutputStream(filePath.toFile());
+		try {
+			fos.write(imageBytes);
+			fos.close();
+		} catch (Throwable throwable) {
+			try {
+				fos.close();
+			} catch (Throwable throwable1) {
+				throwable.addSuppressed(throwable1);
+			}
+			throw throwable;
+		}
+		return this.baseUrl + "/framed/" + fileName;
+	}
 
 	public String saveFramedCroppedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
 		String IMAGE_DIRECTORY = "src/main/resources/static/framedCropped/";

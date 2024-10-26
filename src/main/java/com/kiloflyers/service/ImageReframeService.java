@@ -55,6 +55,17 @@ public class ImageReframeService {
 		localImageService.saveImageToStaticFolder(imageBytes, "reframed_image.png");
 		return imageBytes;
 	}
+	
+	
+	public String reframeImage(String imageFile, String fileName) throws IOException {
+		BufferedImage originalImage = loadImageFromLocalPath(imageFile);
+		BufferedImage reframedImage = createReframedImage(originalImage);
+		byte[] imageBytes = convertImageToByteArray(reframedImage);
+
+		// save byte array to local repo
+		String url = localImageService.getFramedImageURLFromStaticFolder(imageBytes, fileName);
+		return url;
+	}
 
 	/**
 	 * Reframes an image from a URL and saves it to a specified path.
@@ -64,8 +75,9 @@ public class ImageReframeService {
 	 * @return the URL path to the saved image
 	 * @throws IOException if an error occurs during image processing
 	 */
-	public String reframeImageFromUrl(String imageUrl, String fileName) throws IOException {
-		BufferedImage originalImage = loadImageFromUrl(imageUrl);
+	public String reframeImageFromUrl(String imagePath, String fileName) throws IOException {
+		
+		BufferedImage originalImage = loadImageFromLocalPath(imagePath);
 		BufferedImage reframedImage = createReframedImage(originalImage);
 
 		saveImage(reframedImage, fileName);
@@ -128,7 +140,28 @@ public class ImageReframeService {
 			throw new IOException(e);
 		}
 	}
+	private BufferedImage loadImageFromLocalPath(String imageLocalPath) throws IOException {
+	    try {
+	        System.out.println("Loading image from local path: " + imageLocalPath);
 
+	        // Create a File object with the local path
+	        File localFile = new File(imageLocalPath);
+
+	        // Check if the file exists and is indeed a file
+	        if (!localFile.exists() || !localFile.isFile()) {
+	            throw new IOException("File not found or not a valid file: " + imageLocalPath);
+	        }
+
+	        // Read and return the image from the file
+	        return ImageIO.read(localFile);
+
+	    } catch (IOException e) {
+	        // Log any IOException and rethrow it for handling by the caller
+	        System.err.println("Error loading image from local path: " + imageLocalPath);
+	        e.printStackTrace();
+	        throw e;
+	    }
+	}
 	private BufferedImage createReframedImage(BufferedImage originalImage) {
 		int originalWidth = originalImage.getWidth();
 		int originalHeight = originalImage.getHeight();
@@ -184,23 +217,27 @@ public class ImageReframeService {
 	}
 
 	public void saveFramedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
-		Path filePath = Paths.get("src/main/resources/static/framed/" + fileName, new String[0]);
-		File directory = new File("src/main/resources/static/framed/");
-		if (!directory.exists())
-			directory.mkdirs();
-		FileOutputStream fos = new FileOutputStream(filePath.toFile());
-		try {
-			fos.write(imageBytes);
-			fos.close();
-		} catch (Throwable throwable) {
-			try {
-				fos.close();
-			} catch (Throwable throwable1) {
-				throwable.addSuppressed(throwable1);
-			}
-			throw throwable;
-		}
+	    // Set the directory to Heroku's temporary filesystem
+	    String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
+
+	    // Create the path for the file, using the temporary directory
+	    Path filePath = Paths.get(IMAGE_DIRECTORY + fileName);
+
+	    // Create the directory if it doesn’t exist
+	    File directory = new File(IMAGE_DIRECTORY);
+	    if (!directory.exists()) {
+	        directory.mkdirs();
+	    }
+
+	    // Write the image to the temporary file
+	    try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+	        fos.write(imageBytes);
+	    } catch (IOException e) {
+	        throw new IOException("Error saving the image to temporary storage", e);
+	    }
+
+	    // `filePath` points to the temporary file in Heroku's filesystem.
+	    // Process or move the image file as needed after saving.
 	}
 
 	private String buildImageUrl(String fileName, String folder) {
