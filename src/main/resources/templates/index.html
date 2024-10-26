@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Framed Images Automation</title>
+    <style>
+        img {
+            max-width: 100px; /* Set a maximum width for images */
+            height: auto; /* Maintain aspect ratio */
+        }
+    </style>
+</head>
+<body>
+    <h1>Framed Images</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Original Image</th>
+                <th>Processed Image</th>
+            </tr>
+        </thead>
+        <tbody th:if="${records != null}">
+            <tr th:each="record : ${records}">
+                <!-- Display only the first original image -->
+                <td>
+                    <img th:src="${record.fields.originalImage != null && !record.fields.originalImage.isEmpty() ? record.fields.originalImage[0].url : 'default-original.png'}" 
+                         alt="Original Image">
+                </td>
+                <!-- Placeholder for processed image -->
+                <td>
+                    <img th:src="'default-processed.png'" alt="Processed Image">
+                </td>
+            </tr>
+        </tbody>
+        <tbody th:if="${records == null}">
+            <tr>
+                <td colspan="2">No records available.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
