@@ -88,20 +88,22 @@ public class ImageReframeService {
 
     private BufferedImage loadImageFromUrl(String imageUrl) throws IOException {
         try {
+
+			System.out.println("Framed Image url to be procesed before encoding :" + imageUrl);
             // Encode the entire URL to handle spaces and special characters
-            String encodedUrl = URLEncoder.encode(imageUrl, StandardCharsets.UTF_8.toString())
-                    .replace("+", "%20"); // Replace "+" with "%20" for spaces
-
+//            String encodedUrl = URLEncoder.encode(imageUrl, StandardCharsets.UTF_8.toString())
+//                    .replace("+", "%20"); // Replace "+" with "%20" for spaces
+//            System.out.println("Framed Image url to be procesed after encoding :" + encodedUrl);
             // Create a URI from the encoded string
-            URI uri = new URI(encodedUrl);
-
-            // Check if the URI is absolute
-            if (!uri.isAbsolute()) {
-                throw new IllegalArgumentException("URI is not absolute: " + encodedUrl);
-            }
+//            URI uri = new URI(imageUrl);
+//
+//            // Check if the URI is absolute
+//            if (!uri.isAbsolute()) {
+//                throw new IllegalArgumentException("URI is not absolute: " + imageUrl);
+//            }
 
             // Convert URI to URL
-            URL url = uri.toURL();
+            URL url = new URL(imageUrl);
 
             // Open a connection to the URL
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -109,10 +111,6 @@ public class ImageReframeService {
             
             // Read the image from the input stream
             return ImageIO.read(connection.getInputStream());
-        } catch (URISyntaxException e) {
-            System.err.println("Invalid URI: " + imageUrl);
-            e.printStackTrace();
-            throw new IOException("Invalid URI: " + imageUrl, e);
         } catch (IOException e) {
             // Log the exception and the URL
             System.err.println("Error loading image from URL: " + imageUrl);
