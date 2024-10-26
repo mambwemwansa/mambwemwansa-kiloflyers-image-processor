@@ -158,29 +158,29 @@ public class ImageReframeService {
 	}
 
 	private void saveImage(BufferedImage image, String fileName) {
-	    if (image == null) {
-	        System.err.println("Error: BufferedImage is null. Unable to save the image.");
-	        return;
-	    }
+        if (image == null) {
+            System.err.println("Error: BufferedImage is null. Unable to save the image.");
+            return;
+        }
 
-	    try {
-	        // Get the path to the classpath resource folder and resolve the target file path
-	        Path outputPath = Paths.get(resourceLoader.getResource("classpath:static/framed/").getURI()).resolve(fileName);
+        try {
+            // Get a writable directory (e.g., temp directory)
+            Path outputPath = Paths.get(System.getProperty("java.io.tmpdir"), "framed", fileName);
 
-	        // Create directories if they do not exist
-	        Files.createDirectories(outputPath.getParent());
+            // Create directories if they do not exist
+            Files.createDirectories(outputPath.getParent());
 
-	        // Save the image as a PNG file
-	        ImageIO.write(image, "png", outputPath.toFile());
+            // Save the image as a PNG file
+            ImageIO.write(image, "png", outputPath.toFile());
 
-	        // Log success message
-	        System.out.println("Image saved successfully at " + outputPath.toAbsolutePath());
-	    } catch (IOException e) {
-	        // Log the error
-	        System.err.println("Failed to save image: " + e.getMessage());
-	        e.printStackTrace(); // Optionally log the stack trace for debugging
-	    }
-	}
+            // Log success message
+            System.out.println("Image saved successfully at " + outputPath.toAbsolutePath());
+        } catch (IOException e) {
+            // Log the error
+            System.err.println("Failed to save image: " + e.getMessage());
+            e.printStackTrace(); // Optionally log the stack trace for debugging
+        }
+    }
 
 
 	private String buildImageUrl(String fileName, String folder) {
