@@ -90,7 +90,7 @@ public class ImageProcessingService {
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		String backgroundRemovedImageUrl = callRemoveBgApi(originalImageUrl,
 				((Image) originalImages.get(0)).getFilename());
-		System.out.println("Background has been removed succesfully and stored in :" + backgroundRemovedImageUrl);
+		System.out.println("Removed Background  Image has been succesfully and stored in :" + backgroundRemovedImageUrl);
 		uploadNoBckImageToAirtable(backgroundRemovedImageUrl, record.getId());
 		
 		return backgroundRemovedImageUrl;
@@ -107,6 +107,8 @@ public class ImageProcessingService {
 		try {
 			finalframedUrl = imageReframeService.reframeImageFromUrl(originalImageUrl,
 					((Image) originalImages.get(0)).getFilename());
+
+			System.out.println("Framed Image has been succesfully and stored in :" + finalframedUrl);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -129,6 +131,9 @@ public class ImageProcessingService {
 			try {
 				finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(backgroundRemovedImageUrl,
 						fileName);
+
+
+				System.out.println("Framed and Cropped Image has been succesfully and stored in :" + finalframedCroppedUrl);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
