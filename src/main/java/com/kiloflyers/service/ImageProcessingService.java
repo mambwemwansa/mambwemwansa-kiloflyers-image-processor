@@ -64,7 +64,7 @@ public class ImageProcessingService {
 					if (!airtableRecord.getFields().isProcessed()
 							&& airtableRecord.getFields().getOriginalImage().size() != 0) {
 						String backgroundRemovedImageUrl = null;
-						//backgroundRemovedImageUrl = removeBackground(airtableRecord);
+						backgroundRemovedImageUrl = removeBackground(airtableRecord);
 						framedBackground(airtableRecord);
 						framedCroppedBackground(airtableRecord, backgroundRemovedImageUrl);
 						setFileName(airtableRecord);
