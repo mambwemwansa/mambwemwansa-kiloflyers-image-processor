@@ -11,7 +11,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -82,7 +87,42 @@ public class ImageReframeService {
     }
 
     private BufferedImage loadImageFromUrl(String imageUrl) throws IOException {
-        return ImageIO.read(new URL(imageUrl));
+        try {
+            // Encode the entire URL to handle spaces and special characters
+            String encodedUrl = URLEncoder.encode(imageUrl, StandardCharsets.UTF_8.toString())
+                    .replace("+", "%20"); // Replace "+" with "%20" for spaces
+
+            // Create a URI from the encoded string
+            URI uri = new URI(encodedUrl);
+
+            // Check if the URI is absolute
+            if (!uri.isAbsolute()) {
+                throw new IllegalArgumentException("URI is not absolute: " + encodedUrl);
+            }
+
+            // Convert URI to URL
+            URL url = uri.toURL();
+
+            // Open a connection to the URL
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setInstanceFollowRedirects(true); // Follow redirects
+            
+            // Read the image from the input stream
+            return ImageIO.read(connection.getInputStream());
+        } catch (URISyntaxException e) {
+            System.err.println("Invalid URI: " + imageUrl);
+            e.printStackTrace();
+            throw new IOException("Invalid URI: " + imageUrl, e);
+        } catch (IOException e) {
+            // Log the exception and the URL
+            System.err.println("Error loading image from URL: " + imageUrl);
+            e.printStackTrace();
+            throw e; // Rethrow the exception if necessary
+        } catch (IllegalArgumentException e) {
+            // Log and rethrow if the URI is not absolute
+            System.err.println(e.getMessage());
+            throw new IOException(e);
+        }
     }
 
     private BufferedImage createReframedImage(BufferedImage originalImage) {

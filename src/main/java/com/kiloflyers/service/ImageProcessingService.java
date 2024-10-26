@@ -66,7 +66,7 @@ public class ImageProcessingService {
 						String backgroundRemovedImageUrl = null;
 						backgroundRemovedImageUrl = removeBackground(airtableRecord);
 						framedBackground(airtableRecord);
-						framedCroppedBackground(airtableRecord, backgroundRemovedImageUrl);
+						//framedCroppedBackground(airtableRecord, backgroundRemovedImageUrl);
 						setFileName(airtableRecord);
 						updateIsProcessed(true, airtableRecord.getId());
 					}
@@ -99,6 +99,7 @@ public class ImageProcessingService {
 
 	public void framedBackground(AirtableRecord record) {
 		String finalframedUrl = null;
+		String framedUrl  = null;
 		List<Image> originalImages = record.getFields().getOriginalImage();
 		if (originalImages.isEmpty()) {
 			System.out.println("No original images found for record: " + String.valueOf(record));
@@ -106,7 +107,7 @@ public class ImageProcessingService {
 		}
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		try {
-			String framedUrl = localImageService.downloadImageToStaticFolderreturnURL(originalImageUrl,
+			framedUrl = localImageService.downloadImageToStaticFolderreturnURL(originalImageUrl,
 					((Image) originalImages.get(0)).getFilename());
 			System.out.println("Framed Image locally stored in :" + framedUrl);
 			finalframedUrl = imageReframeService.reframeImageFromUrl(framedUrl,
