@@ -108,7 +108,7 @@ public class ImageProcessingService {
 		try {
 			String framedUrl = localImageService.downloadImageToStaticFolderreturnURL(originalImageUrl,
 					((Image) originalImages.get(0)).getFilename());
-
+			System.out.println("Framed Image locally stored in :" + framedUrl);
 			finalframedUrl = imageReframeService.reframeImageFromUrl(framedUrl,
 					((Image) originalImages.get(0)).getFilename());
 
