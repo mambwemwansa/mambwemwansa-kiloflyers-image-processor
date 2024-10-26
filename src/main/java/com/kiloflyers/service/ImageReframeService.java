@@ -67,7 +67,7 @@ public class ImageReframeService {
 		BufferedImage originalImage = loadImageFromUrl(imageUrl);
 		BufferedImage reframedImage = createReframedImage(originalImage);
 
-		saveImage(reframedImage, fileName, "src/main/resources/static/framed/");
+		saveImage(reframedImage, fileName);
 		return buildImageUrl(fileName, "/framed/");
 	}
 
@@ -83,7 +83,7 @@ public class ImageReframeService {
 		BufferedImage originalImage = loadImageFromUrl(imageUrl);
 		BufferedImage reframedImage = createReframedImage(originalImage);
 
-		saveImage(reframedImage, fileName, "src/main/resources/static/framedCropped/");
+		saveImage(reframedImage, fileName);
 		return buildImageUrl(fileName, "/framedCropped/");
 	}
 
@@ -157,24 +157,31 @@ public class ImageReframeService {
 		return outputStream.toByteArray();
 	}
 
-	private void saveImage(BufferedImage image, String fileName, String directoryPath) throws IOException {
+	private void saveImage(BufferedImage image, String fileName) {
+	    if (image == null) {
+	        System.err.println("Error: BufferedImage is null. Unable to save the image.");
+	        return;
+	    }
 
-		// Get the path to the classpath resource folder
-		Path resourcePath = Paths.get(resourceLoader.getResource("classpath:static/framed/").getURI())
-				.resolve(fileName);
-		;
-		Path outputPath = resourcePath.resolve(fileName);
+	    try {
+	        // Get the path to the classpath resource folder and resolve the target file path
+	        Path outputPath = Paths.get(resourceLoader.getResource("classpath:static/framed/").getURI()).resolve(fileName);
 
-		// Create directories if they do not exist
-		Files.createDirectories(outputPath.getParent());
+	        // Create directories if they do not exist
+	        Files.createDirectories(outputPath.getParent());
 
-		// Save the image as a PNG file
-		ImageIO.write(image, "png", outputPath.toFile());
+	        // Save the image as a PNG file
+	        ImageIO.write(image, "png", outputPath.toFile());
 
-		// Log success message
-		System.out.println("Image saved successfully at " + outputPath.toAbsolutePath());
-
+	        // Log success message
+	        System.out.println("Image saved successfully at " + outputPath.toAbsolutePath());
+	    } catch (IOException e) {
+	        // Log the error
+	        System.err.println("Failed to save image: " + e.getMessage());
+	        e.printStackTrace(); // Optionally log the stack trace for debugging
+	    }
 	}
+
 
 	private String buildImageUrl(String fileName, String folder) {
 		return baseUrl + folder + fileName;
