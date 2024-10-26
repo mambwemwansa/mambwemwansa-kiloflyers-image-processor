@@ -164,8 +164,9 @@ public class ImageReframeService {
         }
 
         try {
-            // Get a writable directory (e.g., temp directory)
-            Path outputPath = Paths.get(System.getProperty("java.io.tmpdir"), "framed", fileName);
+            // Define the path to the static/framed directory
+            // Assuming you are running the app from the root of the project
+            Path outputPath = Paths.get("src/main/resources/static/framed", fileName);
 
             // Create directories if they do not exist
             Files.createDirectories(outputPath.getParent());
