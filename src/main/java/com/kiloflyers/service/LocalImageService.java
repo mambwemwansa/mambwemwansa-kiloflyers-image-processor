@@ -58,7 +58,16 @@ public class LocalImageService {
     FileUtils.copyURLToFile(url, targetFile);
     return targetFile.getAbsolutePath();
   }
-  
+  public String downloadImageToStaticFolderreturnURL(String imageUrl, String fileName) throws IOException {
+	    String IMAGE_DIRECTORY = "src/main/resources/static/downloads/";
+	    URL url = new URL(imageUrl);
+	    File directory = new File("src/main/resources/static/downloads/");
+	    if (!directory.exists())
+	      directory.mkdirs(); 
+	    File targetFile = new File("src/main/resources/static/downloads/" + fileName);
+	    FileUtils.copyURLToFile(url, targetFile);
+	    return this.baseUrl + "/downloads/" + fileName;
+	  }
   public String saveToFramedImageToStaticFolder(String imageUrl, String fileName) throws IOException {
 	    String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
 	    URL url = new URL(imageUrl);

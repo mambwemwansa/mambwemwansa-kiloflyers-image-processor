@@ -32,9 +32,9 @@ public class ImageProcessingService {
 
 	@Value("${airtable.tableName}")
 	private String airtableTableName;
-	
-	  @Value("${base-url}")
-	  private String baseUrl;
+
+	@Value("${base-url}")
+	private String baseUrl;
 
 	private final ImageSegmentationService imageSegmentationService;
 
@@ -90,9 +90,10 @@ public class ImageProcessingService {
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		String backgroundRemovedImageUrl = callRemoveBgApi(originalImageUrl,
 				((Image) originalImages.get(0)).getFilename());
-		System.out.println("Removed Background  Image has been succesfully and stored in :" + backgroundRemovedImageUrl);
+		System.out
+				.println("Removed Background  Image has been succesfully and stored in :" + backgroundRemovedImageUrl);
 		uploadNoBckImageToAirtable(backgroundRemovedImageUrl, record.getId());
-		
+
 		return backgroundRemovedImageUrl;
 	}
 
@@ -105,7 +106,10 @@ public class ImageProcessingService {
 		}
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		try {
-			finalframedUrl = imageReframeService.reframeImageFromUrl(originalImageUrl,
+			String framedUrl = localImageService.downloadImageToStaticFolderreturnURL(originalImageUrl,
+					((Image) originalImages.get(0)).getFilename());
+
+			finalframedUrl = imageReframeService.reframeImageFromUrl(framedUrl,
 					((Image) originalImages.get(0)).getFilename());
 
 			System.out.println("Framed Image has been succesfully and stored in :" + finalframedUrl);
@@ -124,24 +128,24 @@ public class ImageProcessingService {
 			System.out.println("No original images found for framed cropped record: " + String.valueOf(record));
 			return;
 		}
-		
+
 		String fileName = ((Image) originalImages.get(0)).getFilename();
-		
+
 		if (!localImageService.doesFileExist(fileName)) {
 			try {
 				finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(backgroundRemovedImageUrl,
 						fileName);
 
-
-				System.out.println("Framed and Cropped Image has been succesfully and stored in :" + finalframedCroppedUrl);
+				System.out.println(
+						"Framed and Cropped Image has been succesfully and stored in :" + finalframedCroppedUrl);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
-		}else {
-			
-			String framedCroppedUrl= baseUrl+"/images/"+fileName;
-			
+			}
+		} else {
+
+			String framedCroppedUrl = baseUrl + "/images/" + fileName;
+
 			try {
 				finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(framedCroppedUrl,
 						((Image) originalImages.get(0)).getFilename());
@@ -150,7 +154,7 @@ public class ImageProcessingService {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("framed cropped record url : "+finalframedCroppedUrl);
+		System.out.println("framed cropped record url : " + finalframedCroppedUrl);
 		uploadFramedCropped(finalframedCroppedUrl, record.getId());
 	}
 
