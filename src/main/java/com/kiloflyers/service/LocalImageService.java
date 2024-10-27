@@ -65,7 +65,7 @@ public class LocalImageService {
     // Save framed cropped image to cache instead of static folder
     public String saveFramedCroppedImageToCache(byte[] imageBytes, String fileName) {
         framedCroppedCache.put(fileName, imageBytes);
-        return this.baseUrl + "/framedCropped/" + fileName;
+        return this.baseUrl + "/framedcropped/" + fileName;
     }
 
     // Helper method to download image bytes from URL

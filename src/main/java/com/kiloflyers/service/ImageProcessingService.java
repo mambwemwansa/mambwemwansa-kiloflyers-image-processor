@@ -164,38 +164,6 @@ public class ImageProcessingService {
 			e.printStackTrace();
 		}
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		if (!localImageService.doesFileExist(fileName)) {
-			try {
-				finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(backgroundRemovedImageUrl,
-						fileName);
-
-				System.out.println(
-						"Framed and Cropped Image has been succesfully and stored in :" + finalframedCroppedUrl);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-
-			String framedCroppedUrl = baseUrl + "/images/" + fileName;
-
-			try {
-				finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(framedCroppedUrl,
-						((Image) originalImages.get(0)).getFilename());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		System.out.println("framed cropped record url : " + finalframedCroppedUrl);
 		uploadFramedCropped(finalframedCroppedUrl, record.getId());
 	}
