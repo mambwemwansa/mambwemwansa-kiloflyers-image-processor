@@ -61,8 +61,8 @@ public class ImageProcessingService {
 						AirtableResponse.class);
 				List<AirtableRecord> records = airtableResponse.getRecords();
 				for (AirtableRecord airtableRecord : records) {
-					if (!airtableRecord.getFields().isProcessed()
-							&& airtableRecord.getFields().getOriginalImage().size() != 0) {
+					if (!airtableRecord.getFields().isProcessed() & airtableRecord.getFields().getOriginalImage()!= null
+							& airtableRecord.getFields().getOriginalImage().size() != 0) {
 						
 //						List<Image> originalImages = airtableRecord.getFields().getOriginalImage();
 //						String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
@@ -71,7 +71,7 @@ public class ImageProcessingService {
 						String backgroundRemovedImageUrl = null;
 						backgroundRemovedImageUrl = removeBackground(airtableRecord);
 						framedBackground(airtableRecord);
-						//framedCroppedBackground(airtableRecord, backgroundRemovedImageUrl);
+						framedCroppedBackground(airtableRecord, backgroundRemovedImageUrl);
 						setFileName(airtableRecord);
 						updateIsProcessed(true, airtableRecord.getId());
 					}
