@@ -18,10 +18,10 @@ public class LocalImageService {
     private String baseUrl;
 
     // Define cache maps to replace directories
-    private final ConcurrentHashMap<String, byte[]> imageCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, byte[]> downloadCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, byte[]> framedCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, byte[]> framedCroppedCache = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<String, byte[]> imageCache = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<String, byte[]> downloadCache = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<String, byte[]> framedCache = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<String, byte[]> framedCroppedCache = new ConcurrentHashMap<>();
 
     // Save image bytes to cache instead of static folder
     public String saveImageToCache(byte[] imageBytes, String fileName) {
