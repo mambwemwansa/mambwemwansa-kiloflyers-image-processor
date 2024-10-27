@@ -95,6 +95,10 @@ public class LocalImageService {
             // Check if the file has been downloaded successfully
             if (targetFile.exists()) {
                 System.out.println("Download successful: " + targetFile.getAbsolutePath());
+                
+                // List all files in the directory
+                listAllFilesInDirectory(directory);
+                
                 return targetFile.getAbsolutePath(); // Return absolute path
             } else {
                 throw new IOException("File not found after download: " + targetFile.getAbsolutePath());
@@ -113,6 +117,24 @@ public class LocalImageService {
             } else {
                 System.out.println("Failed to create directory: " + dir.getAbsolutePath());
             }
+        }
+    }
+
+    // Method to list all files in the directory
+    private void listAllFilesInDirectory(String directory) {
+        File dir = new File(directory);
+        if (dir.exists() && dir.isDirectory()) {
+            System.out.println("Files in directory '" + directory + "':");
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    System.out.println("- " + file.getName());
+                }
+            } else {
+                System.out.println("Failed to list files in directory: " + directory);
+            }
+        } else {
+            System.out.println("Directory does not exist or is not a directory: " + directory);
         }
     }
 }
