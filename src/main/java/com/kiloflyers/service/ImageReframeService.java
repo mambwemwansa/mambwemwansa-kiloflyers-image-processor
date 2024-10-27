@@ -58,6 +58,8 @@ public class ImageReframeService {
 	
 	
 	public String reframeImage(String imageFile, String fileName) throws IOException {
+
+		System.out.println("Framing process starting..");
 		BufferedImage originalImage = loadImageFromLocalPath(imageFile);
 		BufferedImage reframedImage = createReframedImage(originalImage);
 		byte[] imageBytes = convertImageToByteArray(reframedImage);
@@ -142,7 +144,7 @@ public class ImageReframeService {
 	}
 	private BufferedImage loadImageFromLocalPath(String imageLocalPath) throws IOException {
 	    try {
-	        System.out.println("Loading image from local path: " + imageLocalPath);
+	        System.out.println("Loading unframed image from local path: " + imageLocalPath);
 
 	        // Create a File object with the local path
 	        File localFile = new File(imageLocalPath);
@@ -218,7 +220,7 @@ public class ImageReframeService {
 
 	public void saveFramedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
 	    // Set the directory to Heroku's temporary filesystem
-	    String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
+	    String IMAGE_DIRECTORY = "/tmp/framed/";
 
 	    // Create the path for the file, using the temporary directory
 	    Path filePath = Paths.get(IMAGE_DIRECTORY + fileName);

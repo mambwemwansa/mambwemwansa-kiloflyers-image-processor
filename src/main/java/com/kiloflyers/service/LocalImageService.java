@@ -13,15 +13,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import com.kiloflyers.model.Image;
+
 @Service
 public class LocalImageService {
 	@Value("${base-url}")
 	private String baseUrl;
 
 	public String saveImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "src/main/resources/static/images/";
-		Path filePath = Paths.get("src/main/resources/static/images/" + fileName, new String[0]);
-		File directory = new File("src/main/resources/static/images/");
+		String IMAGE_DIRECTORY = "/tmp/images/";
+		Path filePath = Paths.get("/tmp/images/" + fileName, new String[0]);
+		File directory = new File("/tmp/images/");
 		if (!directory.exists())
 			directory.mkdirs();
 		FileOutputStream fos = new FileOutputStream(filePath.toFile());
@@ -50,43 +52,47 @@ public class LocalImageService {
 	}
 
 	public String downloadImageToStaticFolder(String imageUrl, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "src/main/resources/static/downloads/";
+		String IMAGE_DIRECTORY = "/tmp/downloads/";
 		URL url = new URL(imageUrl);
-		File directory = new File("src/main/resources/static/downloads/");
+		File directory = new File("/tmp/downloads/");
 		if (!directory.exists())
 			directory.mkdirs();
-		File targetFile = new File("src/main/resources/static/downloads/" + fileName);
+		File targetFile = new File("/tmp/downloads/" + fileName);
 		FileUtils.copyURLToFile(url, targetFile);
 		return targetFile.getAbsolutePath();
 	}
 
 	public String downloadImageToStaticFolderreturnURL(String imageUrl, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "src/main/resources/static/downloads/";
+		String IMAGE_DIRECTORY = "/tmp/downloads/";
 		URL url = new URL(imageUrl);
-		File directory = new File("src/main/resources/static/downloads/");
+		File directory = new File("/tmp/downloads/");
 		if (!directory.exists())
 			directory.mkdirs();
-		File targetFile = new File("src/main/resources/static/downloads/" + fileName);
+		File targetFile = new File("/tmp/downloads/" + fileName);
 		FileUtils.copyURLToFile(url, targetFile);
 		return this.baseUrl + "/downloads/" + fileName;
 	}
 
 	public String saveToFramedImageToStaticFolder(String imageUrl, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
+
+		System.out.println("Original unframed image being saved to local folder :" + imageUrl);
+		String IMAGE_DIRECTORY = "/tmp/framed/";
 		URL url = new URL(imageUrl);
-		File directory = new File("src/main/resources/static/framed/");
+		File directory = new File("/tmp/framed/");
 		if (!directory.exists())
 			directory.mkdirs();
-		File targetFile = new File("src/main/resources/static/framed/" + fileName);
+		File targetFile = new File("/tmp/framed/" + fileName);
+		
 		FileUtils.copyURLToFile(url, targetFile);
+		System.out.println("Original unframed image saved!");
 		return targetFile.getAbsolutePath();
 	}
 	
 	
 	public String getFramedImageURLFromStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "src/main/resources/static/framed/";
-		Path filePath = Paths.get("src/main/resources/static/framed/" + fileName, new String[0]);
-		File directory = new File("src/main/resources/static/framed/");
+		String IMAGE_DIRECTORY = "/tmp/framed/";
+		Path filePath = Paths.get("/tmp/framed/" + fileName, new String[0]);
+		File directory = new File("/tmp/framed/");
 		if (!directory.exists())
 			directory.mkdirs();
 		FileOutputStream fos = new FileOutputStream(filePath.toFile());
@@ -105,9 +111,9 @@ public class LocalImageService {
 	}
 
 	public String saveFramedCroppedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "src/main/resources/static/framedCropped/";
-		Path filePath = Paths.get("src/main/resources/static/framedCropped/" + fileName, new String[0]);
-		File directory = new File("src/main/resources/static/framedCropped/");
+		String IMAGE_DIRECTORY = "/tmp/framedCropped/";
+		Path filePath = Paths.get("/tmp/framedCropped/" + fileName, new String[0]);
+		File directory = new File("/tmp/framedCropped/");
 		if (!directory.exists())
 			directory.mkdirs();
 		FileOutputStream fos = new FileOutputStream(filePath.toFile());

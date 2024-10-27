@@ -98,9 +98,12 @@ public class ImageProcessingService {
 	}
 
 	public void framedBackground(AirtableRecord record) {
+
+		
 		String finalframedUrl = null;
 		String framedUrl  = null;
 		List<Image> originalImages = record.getFields().getOriginalImage();
+		System.out.println("unframed image now processing :" + ((Image) originalImages.get(0)).getFilename());
 		if (originalImages.isEmpty()) {
 			System.out.println("No original images found for record: " + String.valueOf(record));
 			return;
@@ -109,7 +112,7 @@ public class ImageProcessingService {
 		try {
 			framedUrl = localImageService.saveToFramedImageToStaticFolder(originalImageUrl,
 					((Image) originalImages.get(0)).getFilename());
-			System.out.println("Framed Image locally stored in :" + framedUrl);
+			System.out.println("unframed Image locally saved in :" + framedUrl);
 			
 			
 			finalframedUrl = imageReframeService.reframeImage(framedUrl,
