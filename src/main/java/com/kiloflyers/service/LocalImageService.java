@@ -8,128 +8,98 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import com.kiloflyers.model.Image;
-
 @Service
 public class LocalImageService {
-	@Value("${base-url}")
-	private String baseUrl;
 
-	public String saveImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "/tmp/images/";
-		Path filePath = Paths.get("/tmp/images/" + fileName, new String[0]);
-		File directory = new File("/tmp/images/");
-		if (!directory.exists())
-			directory.mkdirs();
-		FileOutputStream fos = new FileOutputStream(filePath.toFile());
-		try {
-			fos.write(imageBytes);
-			fos.close();
-		} catch (Throwable throwable) {
-			try {
-				fos.close();
-			} catch (Throwable throwable1) {
-				throwable.addSuppressed(throwable1);
-			}
-			throw throwable;
-		}
-		return this.baseUrl + "/images/" + fileName;
-	}
+    @Value("${base-url}")
+    private String baseUrl;
 
-	public boolean doesFileExist(String fileName) {
-		final String IMAGE_DIRECTORY = "static/images/";
-		ClassPathResource resource = new ClassPathResource(IMAGE_DIRECTORY + fileName);
-		try (InputStream inputStream = resource.getInputStream()) {
-			return true; // File exists
-		} catch (IOException e) {
-			return false; // File does not exist
-		}
-	}
+    private static final String IMAGE_DIRECTORY = "/tmp/images/";
+    private static final String DOWNLOAD_DIRECTORY = "/tmp/downloads/";
+    private static final String FRAMED_DIRECTORY = "/tmp/framed/";
+    private static final String FRAMED_CROPPED_DIRECTORY = "/tmp/framedCropped/";
 
-	public String downloadImageToStaticFolder(String imageUrl, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "/tmp/downloads/";
-		URL url = new URL(imageUrl);
-		File directory = new File("/tmp/downloads/");
-		if (!directory.exists())
-			directory.mkdirs();
-		File targetFile = new File("/tmp/downloads/" + fileName);
-		FileUtils.copyURLToFile(url, targetFile);
-		return targetFile.getAbsolutePath();
-	}
+    // Method to save image bytes to static folder
+    public String saveImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
+        return saveToFile(imageBytes, fileName, IMAGE_DIRECTORY);
+    }
 
-	public String downloadImageToStaticFolderreturnURL(String imageUrl, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "/tmp/downloads/";
-		URL url = new URL(imageUrl);
-		File directory = new File("/tmp/downloads/");
-		if (!directory.exists())
-			directory.mkdirs();
-		File targetFile = new File("/tmp/downloads/" + fileName);
-		FileUtils.copyURLToFile(url, targetFile);
-		return this.baseUrl + "/downloads/" + fileName;
-	}
+    // Check if a file exists in classpath
+    public boolean doesFileExist(String fileName) {
+        final String IMAGE_DIRECTORY = "static/images/";
+        ClassPathResource resource = new ClassPathResource(IMAGE_DIRECTORY + fileName);
+        try (InputStream inputStream = resource.getInputStream()) {
+            return true; // File exists
+        } catch (IOException e) {
+            return false; // File does not exist
+        }
+    }
 
-	public String saveToFramedImageToStaticFolder(String imageUrl, String fileName) throws IOException {
+    // Download image to static folder
+    public String downloadImageToStaticFolder(String imageUrl, String fileName) throws IOException {
+        return downloadToFile(imageUrl, fileName, DOWNLOAD_DIRECTORY);
+    }
 
-		System.out.println("Original unframed image being saved to local folder :" + imageUrl);
-		String IMAGE_DIRECTORY = "/tmp/framed/";
-		URL url = new URL(imageUrl);
-		File directory = new File("/tmp/framed/");
-		if (!directory.exists())
-			directory.mkdirs();
-		File targetFile = new File("/tmp/framed/" + fileName);
-		
-		FileUtils.copyURLToFile(url, targetFile);
-		System.out.println("Original unframed image saved!");
-		return targetFile.getAbsolutePath();
-	}
-	
-	
-	public String getFramedImageURLFromStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "/tmp/framed/";
-		Path filePath = Paths.get("/tmp/framed/" + fileName, new String[0]);
-		File directory = new File("/tmp/framed/");
-		if (!directory.exists())
-			directory.mkdirs();
-		FileOutputStream fos = new FileOutputStream(filePath.toFile());
-		try {
-			fos.write(imageBytes);
-			fos.close();
-		} catch (Throwable throwable) {
-			try {
-				fos.close();
-			} catch (Throwable throwable1) {
-				throwable.addSuppressed(throwable1);
-			}
-			throw throwable;
-		}
-		return this.baseUrl + "/framed/" + fileName;
-	}
+    // Download image and return URL
+    public String downloadImageToStaticFolderreturnURL(String imageUrl, String fileName) throws IOException {
+        downloadToFile(imageUrl, fileName, DOWNLOAD_DIRECTORY);
+        return this.baseUrl + "/downloads/" + fileName;
+    }
 
-	public String saveFramedCroppedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-		String IMAGE_DIRECTORY = "/tmp/framedCropped/";
-		Path filePath = Paths.get("/tmp/framedCropped/" + fileName, new String[0]);
-		File directory = new File("/tmp/framedCropped/");
-		if (!directory.exists())
-			directory.mkdirs();
-		FileOutputStream fos = new FileOutputStream(filePath.toFile());
-		try {
-			fos.write(imageBytes);
-			fos.close();
-		} catch (Throwable throwable) {
-			try {
-				fos.close();
-			} catch (Throwable throwable1) {
-				throwable.addSuppressed(throwable1);
-			}
-			throw throwable;
-		}
-		return this.baseUrl + "/images/" + fileName;
-	}
-	
-	
+    // Save framed image to static folder
+    public String saveToFramedImageToStaticFolder(String imageUrl, String fileName) throws IOException {
+        System.out.println("Original unframed image being saved to local folder :" + imageUrl);
+        downloadToFile(imageUrl, fileName, FRAMED_DIRECTORY);
+        System.out.println("Original unframed image saved!");
+        return this.baseUrl + "/framed/" + fileName;
+    }
+
+    // Get framed image URL from static folder
+    public String getFramedImageURLFromStaticFolder(byte[] imageBytes, String fileName) throws IOException {
+        return saveToFile(imageBytes, fileName, FRAMED_DIRECTORY);
+    }
+
+    // Save framed cropped image to static folder
+    public String saveFramedCroppedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
+        return saveToFile(imageBytes, fileName, FRAMED_CROPPED_DIRECTORY);
+    }
+
+    // Helper method to save file
+    private String saveToFile(byte[] data, String fileName, String directory) throws IOException {
+        Path filePath = Paths.get(directory + fileName);
+        createDirectory(directory);
+        try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+            fos.write(data);
+            return this.baseUrl + "/images/" + fileName; // Adjust URL return as necessary
+        } catch (IOException e) {
+            throw new IOException("Error saving file: " + fileName, e);
+        }
+    }
+
+    // Helper method to download file
+    private String downloadToFile(String imageUrl, String fileName, String directory) throws IOException {
+        URL url = new URL(imageUrl);
+        File targetFile = new File(directory + fileName);
+        createDirectory(directory);
+        try {
+            FileUtils.copyURLToFile(url, targetFile);
+            return targetFile.getAbsolutePath(); // Return absolute path
+        } catch (IOException e) {
+            throw new IOException("Error downloading file from URL: " + imageUrl, e);
+        }
+    }
+
+    // Create directory if it does not exist
+    private void createDirectory(String directory) {
+        File dir = new File(directory);
+        if (!dir.exists()) {
+            dir.mkdirs(); // Create directory and any non-existent parent directories
+        }
+    }
 }
