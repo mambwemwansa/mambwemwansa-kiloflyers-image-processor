@@ -155,7 +155,24 @@ public class ImageProcessingService {
 		}
 
 		String fileName = ((Image) originalImages.get(0)).getFilename();
+		
+		try {
+			finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(backgroundRemovedImageUrl,
+					fileName);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		if (!localImageService.doesFileExist(fileName)) {
 			try {
 				finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(backgroundRemovedImageUrl,
@@ -193,6 +210,8 @@ public class ImageProcessingService {
 	}
 
 	private String callRemoveBgApi(String imageUrl, String filename) {
+
+		System.out.println("Calling background removal API: " + imageUrl);
 		try {
 			byte[] segmentedImage = this.imageSegmentationService.segmentImage(imageUrl, filename);
 			String url = this.localImageService.saveImageToCache(segmentedImage, filename);

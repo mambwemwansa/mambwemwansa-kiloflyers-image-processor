@@ -41,15 +41,13 @@ public class ImageReframeService {
      * @return byte array of the reframed image
      * @throws IOException if an error occurs during image processing
      */
-//    public byte[] reframeImage(MultipartFile imageFile) throws IOException {
-//        BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
-//        BufferedImage reframedImage = createReframedImage(originalImage);
-//        byte[] imageBytes = convertImageToByteArray(reframedImage);
-//
-//        // Use LocalImageService to save and get URL for reframed image
-//        localImageService.saveImageToStaticFolder(imageBytes, "reframed_image.png");
-//        return imageBytes;
-//    }
+    public byte[] reframeImage(MultipartFile imageFile) throws IOException {
+        BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
+        BufferedImage reframedImage = createReframedImage(originalImage);
+        byte[] imageBytes = convertImageToByteArray(reframedImage);
+
+        return imageBytes;
+    }
 
     public String reframeImage(String imageFile, String fileName) throws IOException {
         System.out.println("Framing process starting..");
@@ -99,7 +97,7 @@ public class ImageReframeService {
 
     private BufferedImage loadImageFromUrl(String imageUrl) throws IOException {
         try {
-            System.out.println("Framed Image URL to be processed: " + imageUrl);
+            System.out.println("Image URL to be processed: " + imageUrl);
             URL url = new URL(imageUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(true); // Follow redirects
