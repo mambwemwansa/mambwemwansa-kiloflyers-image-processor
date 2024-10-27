@@ -7,6 +7,8 @@ import com.kiloflyers.service.ImageSegmentationService;
 import com.kiloflyers.service.LocalImageService;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +68,7 @@ public class ImageController {
 
   @GetMapping("/downloads/{name}")
   public ResponseEntity<ByteArrayResource> getCachedDownloads(@PathVariable String name) {
+	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
           byte[] imageBytes = localImageService.downloadCache.get(name);
 
@@ -87,6 +90,7 @@ public class ImageController {
   
   @GetMapping("/images/{name}")
   public ResponseEntity<ByteArrayResource> getCachedImage(@PathVariable String name) {
+	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
           byte[] imageBytes = localImageService.imageCache.get(name);
 
@@ -109,6 +113,7 @@ public class ImageController {
   
   @GetMapping("/framed/{name}")
   public ResponseEntity<ByteArrayResource> getCachedFramed(@PathVariable String name) {
+	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
           byte[] imageBytes = localImageService.framedCache.get(name);
 
@@ -130,6 +135,7 @@ public class ImageController {
   
   @GetMapping("/framedcropped/{name}")
   public ResponseEntity<ByteArrayResource> getCachedFramedCropped(@PathVariable String name) {
+	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
           byte[] imageBytes = localImageService.framedCroppedCache.get(name);
 
