@@ -36,7 +36,7 @@ public class ImageSegmentationService {
 	}
 
 	public byte[] segmentImage(String url_to_file, String filename) throws IOException {
-		String pathToFile = this.localImageService.downloadImageToStaticFolder(url_to_file, filename);
+		String pathToFile = this.localImageService.downloadImageToCache(url_to_file, filename);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(List.of(MediaType.parseMediaType("image/png")));
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);

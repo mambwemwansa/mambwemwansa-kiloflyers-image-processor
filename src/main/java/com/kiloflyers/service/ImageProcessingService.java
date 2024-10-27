@@ -110,7 +110,7 @@ public class ImageProcessingService {
 		}
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		try {
-			framedUrl = localImageService.saveToFramedImageToStaticFolder(originalImageUrl,
+			framedUrl = localImageService.saveFramedImageToCache(originalImageUrl,
 					((Image) originalImages.get(0)).getFilename());
 			System.out.println("unframed Image locally saved in :" + framedUrl);
 			
@@ -176,7 +176,7 @@ public class ImageProcessingService {
 	private String callRemoveBgApi(String imageUrl, String filename) {
 		try {
 			byte[] segmentedImage = this.imageSegmentationService.segmentImage(imageUrl, filename);
-			String url = this.localImageService.saveImageToStaticFolder(segmentedImage, filename);
+			String url = this.localImageService.saveImageToCache(segmentedImage, filename);
 			return url;
 		} catch (IOException e) {
 			System.err.println("Error during image segmentation: " + e.getMessage());

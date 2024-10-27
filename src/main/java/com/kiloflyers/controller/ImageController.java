@@ -33,16 +33,16 @@ public class ImageController {
 //    return "index";
 //  }
   
-  @PostMapping("/reframe")
-  public ResponseEntity<byte[]> reframeImage(@RequestParam("file") MultipartFile file) {
-      try {
-          byte[] reframedImage = imageReframeService.reframeImage(file);
-          return ResponseEntity.ok()
-                  .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reframed_image.png")
-                  .contentType(MediaType.IMAGE_PNG)
-                  .body(reframedImage);
-      } catch (IOException e) {
-          return ResponseEntity.badRequest().build();
-      }
-  }
+//  @PostMapping("/reframe")
+//  public ResponseEntity<byte[]> reframeImage(@RequestParam("file") MultipartFile file) {
+//      try {
+//          byte[] reframedImage = imageReframeService.reframeImage(file);
+//          return ResponseEntity.ok()
+//                  .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reframed_image.png")
+//                  .contentType(MediaType.IMAGE_PNG)
+//                  .body(reframedImage);
+//      } catch (IOException e) {
+//          return ResponseEntity.badRequest().build();
+//      }
+//  }
 }

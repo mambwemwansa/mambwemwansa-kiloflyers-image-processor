@@ -10,8 +10,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -43,14 +41,15 @@ public class ImageReframeService {
      * @return byte array of the reframed image
      * @throws IOException if an error occurs during image processing
      */
-    public byte[] reframeImage(MultipartFile imageFile) throws IOException {
-        BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
-        BufferedImage reframedImage = createReframedImage(originalImage);
-        byte[] imageBytes = convertImageToByteArray(reframedImage);
-
-        localImageService.saveImageToStaticFolder(imageBytes, "reframed_image.png");
-        return imageBytes;
-    }
+//    public byte[] reframeImage(MultipartFile imageFile) throws IOException {
+//        BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
+//        BufferedImage reframedImage = createReframedImage(originalImage);
+//        byte[] imageBytes = convertImageToByteArray(reframedImage);
+//
+//        // Use LocalImageService to save and get URL for reframed image
+//        localImageService.saveImageToStaticFolder(imageBytes, "reframed_image.png");
+//        return imageBytes;
+//    }
 
     public String reframeImage(String imageFile, String fileName) throws IOException {
         System.out.println("Framing process starting..");
@@ -58,9 +57,8 @@ public class ImageReframeService {
         BufferedImage reframedImage = createReframedImage(originalImage);
         byte[] imageBytes = convertImageToByteArray(reframedImage);
 
-        // save byte array to local repo
-        String url = localImageService.getFramedImageURLFromStaticFolder(imageBytes, fileName);
-        return url;
+        // Get the URL after saving the image via LocalImageService
+        return localImageService.getFramedImageURLFromCache(imageBytes, fileName);
     }
 
     /**
@@ -103,7 +101,6 @@ public class ImageReframeService {
         try {
             System.out.println("Framed Image URL to be processed: " + imageUrl);
             URL url = new URL(imageUrl);
-
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(true); // Follow redirects
 
@@ -116,18 +113,11 @@ public class ImageReframeService {
     }
 
     private BufferedImage loadImageFromLocalPath(String imageLocalPath) throws IOException {
-        try {
-            System.out.println("Loading unframed image from local path: " + imageLocalPath);
-            Path localFilePath = Paths.get(imageLocalPath);
-            if (!Files.exists(localFilePath)) {
-                throw new IOException("File not found: " + imageLocalPath);
-            }
-            return ImageIO.read(localFilePath.toFile());
-        } catch (IOException e) {
-            System.err.println("Error loading image from local path: " + imageLocalPath);
-            e.printStackTrace();
-            throw e;
+        Path localFilePath = Paths.get(imageLocalPath);
+        if (!Files.exists(localFilePath)) {
+            throw new IOException("File not found: " + imageLocalPath);
         }
+        return ImageIO.read(localFilePath.toFile());
     }
 
     private BufferedImage createReframedImage(BufferedImage originalImage) {
@@ -156,14 +146,6 @@ public class ImageReframeService {
         return outputStream.toByteArray();
     }
 
-    public static byte[] bufferedImageToByteArray(BufferedImage image, String format) throws IOException {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            ImageIO.write(image, format, baos);
-            baos.flush();
-            return baos.toByteArray();
-        }
-    }
-
     private void saveImage(BufferedImage image, String fileName) {
         if (image == null) {
             System.err.println("Error: BufferedImage is null. Unable to save the image.");
@@ -172,32 +154,18 @@ public class ImageReframeService {
 
         try {
             byte[] imageBytes = bufferedImageToByteArray(image, "png");
-            saveFramedImageToStaticFolder(imageBytes, fileName);
+            localImageService.saveImageToCache(imageBytes, fileName);
         } catch (IOException e) {
             System.err.println("Failed to save the image: " + fileName);
             e.printStackTrace();
         }
     }
 
-    public void saveFramedImageToStaticFolder(byte[] imageBytes, String fileName) throws IOException {
-        String IMAGE_DIRECTORY = "/tmp/framed/";
-
-        // Create the directory if it doesn’t exist
-        File directory = new File(IMAGE_DIRECTORY);
-        if (!directory.exists() && !directory.mkdirs()) {
-            throw new IOException("Failed to create directory: " + IMAGE_DIRECTORY);
-        }
-
-        // Create the path for the file
-        Path filePath = Paths.get(IMAGE_DIRECTORY, fileName);
-
-        // Write the image to the temporary file
-        try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
-            fos.write(imageBytes);
-            fos.flush(); // Ensure all data is written out
-        } catch (IOException e) {
-            throw new IOException("Error saving the image to temporary storage: " + filePath, e);
-        }
+    public static byte[] bufferedImageToByteArray(BufferedImage image, String format) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, format, baos);
+        baos.flush();
+        return baos.toByteArray();
     }
 
     private String buildImageUrl(String fileName, String folder) {
