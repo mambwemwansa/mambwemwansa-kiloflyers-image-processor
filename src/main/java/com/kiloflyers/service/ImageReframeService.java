@@ -53,7 +53,7 @@ public class ImageReframeService {
 
     public String reframeImage(String imageFile, String fileName) throws IOException {
         System.out.println("Framing process starting..");
-        BufferedImage originalImage = loadImageFromLocalPath(imageFile);
+        BufferedImage originalImage = loadImageFromUrl(imageFile);
         BufferedImage reframedImage = createReframedImage(originalImage);
         byte[] imageBytes = convertImageToByteArray(reframedImage);
 
