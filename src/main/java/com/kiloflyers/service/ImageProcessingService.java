@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kiloflyers.model.AirtableRecord;
 import com.kiloflyers.model.AirtableResponse;
+import com.kiloflyers.model.Fields;
 import com.kiloflyers.model.Image;
 import com.kiloflyers.service.ImageSegmentationService;
 import com.kiloflyers.service.LocalImageService;
@@ -47,43 +48,56 @@ public class ImageProcessingService {
 
 	@Scheduled(fixedDelay = 5000) // 5000 milliseconds = 5 seconds
 	public List<AirtableRecord> fetchUnprocessedRecords() {
-		String url = String.format("https://api.airtable.com/v0/%s/%s",
-				new Object[] { this.airtableBaseId, this.airtableTableName });
-		System.out.println("Airtable endpoint: " + url);
-		HttpResponse<String> response = ((GetRequest) Unirest.get(url).header("Authorization",
-				"Bearer " + this.airtableApiKey)).asString();
-		String jsonResponse = (String) response.getBody();
-		System.out.println("Raw Airtable Response: " + jsonResponse);
-		if (response.getStatus() == 200) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			try {
-				AirtableResponse airtableResponse = (AirtableResponse) objectMapper.readValue(jsonResponse,
-						AirtableResponse.class);
-				List<AirtableRecord> records = airtableResponse.getRecords();
-				for (AirtableRecord airtableRecord : records) {
-					if (!airtableRecord.getFields().isProcessed() & airtableRecord.getFields().getOriginalImage()!= null
-							& airtableRecord.getFields().getOriginalImage().size() != 0) {
-						
-//						List<Image> originalImages = airtableRecord.getFields().getOriginalImage();
-//						String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
-//						String originalImageUrlfileName = ((Image) originalImages.get(0)).getFilename();
-//						localImageService.downloadImageToCache(originalImageUrl,originalImageUrlfileName);
-						String backgroundRemovedImageUrl = null;
-						backgroundRemovedImageUrl = removeBackground(airtableRecord);
-						framedBackground(airtableRecord);
-						framedCroppedBackground(airtableRecord, backgroundRemovedImageUrl);
-						setFileName(airtableRecord);
-						updateIsProcessed(true, airtableRecord.getId());
-					}
-				}
-				return airtableResponse.getRecords();
-			} catch (IOException e) {
-				System.err.println("Error deserializing Airtable response: " + e.getMessage());
-			}
-		} else {
-			System.err.println("Error fetching Airtable records: " + response.getStatus());
-		}
-		return new ArrayList<>();
+	    String url = String.format("https://api.airtable.com/v0/%s/%s", this.airtableBaseId, this.airtableTableName);
+	    System.out.println("Airtable endpoint: " + url);
+
+	    HttpResponse<String> response = ((GetRequest) Unirest.get(url)
+	            .header("Authorization", "Bearer " + this.airtableApiKey)).asString();
+	    String jsonResponse = response.getBody();
+	    System.out.println("Raw Airtable Response: " + jsonResponse);
+
+	    if (response.getStatus() == 200) {
+	        ObjectMapper objectMapper = new ObjectMapper();
+	        try {
+	            AirtableResponse airtableResponse = objectMapper.readValue(jsonResponse, AirtableResponse.class);
+	            List<AirtableRecord> records = airtableResponse.getRecords();
+	            for (AirtableRecord airtableRecord : records) {
+	                Fields fields = airtableRecord.getFields();
+	                
+	                // Check for null fields
+	                if (fields != null) {
+	                    List<Image> originalImages = fields.getOriginalImage();
+
+	                    // Check if the record is not processed and images are available
+	                    if (!fields.isProcessed() && originalImages != null && !originalImages.isEmpty()) {
+	                        // Proceed with processing images
+	                        String backgroundRemovedImageUrl = removeBackground(airtableRecord);
+	                        framedBackground(airtableRecord);
+	                        framedCroppedBackground(airtableRecord, backgroundRemovedImageUrl);
+	                        setFileName(airtableRecord);
+	                        updateIsProcessed(true, airtableRecord.getId());
+	                    } else {
+	                        // Logging for cases where images are null or processed
+	                        if (originalImages == null) {
+	                            System.out.println("No original images found for record ID: " + airtableRecord.getId());
+	                        } else if (originalImages.isEmpty()) {
+	                            System.out.println("Original images list is empty for record ID: " + airtableRecord.getId());
+	                        } else if (fields.isProcessed()) {
+	                            System.out.println("Record ID " + airtableRecord.getId() + " has already been processed.");
+	                        }
+	                    }
+	                } else {
+	                    System.out.println("Fields are null for record ID: " + airtableRecord.getId());
+	                }
+	            }
+	            return records; // Return the records regardless of processing
+	        } catch (IOException e) {
+	            System.err.println("Error deserializing Airtable response: " + e.getMessage());
+	        }
+	    } else {
+	        System.err.println("Error fetching Airtable records: " + response.getStatus());
+	    }
+	    return new ArrayList<>();
 	}
 
 	public String removeBackground(AirtableRecord record) {
