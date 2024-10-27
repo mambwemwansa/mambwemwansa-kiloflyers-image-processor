@@ -13,8 +13,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -98,25 +96,19 @@ public class ImageReframeService {
 	}
 
 	private BufferedImage loadImageFromUrl(String imageUrl) throws IOException {
-	    try {
-	        // Encode spaces and other special characters in the URL
-	        String encodedUrl = URLEncoder.encode(imageUrl, StandardCharsets.UTF_8.toString());
-	        System.out.println("Encoded Image URL to be processed: " + encodedUrl);
+		try {
+			System.out.println("Image URL to be processed: " + imageUrl);
+			URL url = new URL(imageUrl);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setInstanceFollowRedirects(true); // Follow redirects
 
-	        URL url = new URL(encodedUrl);
-	        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	        connection.setInstanceFollowRedirects(true);
-	        connection.setConnectTimeout(5000);
-	        connection.setReadTimeout(5000);
-
-	        return ImageIO.read(connection.getInputStream());
-	    } catch (IOException e) {
-	        System.err.println("Error loading image from URL: " + imageUrl);
-	        e.printStackTrace();
-	        throw e;
-	    }
+			return ImageIO.read(connection.getInputStream());
+		} catch (IOException e) {
+			System.err.println("Error loading image from URL: " + imageUrl);
+			e.printStackTrace();
+			throw e;
+		}
 	}
-
 
 	private BufferedImage loadImageFromLocalPath(String imageLocalPath) throws IOException {
 		Path localFilePath = Paths.get(imageLocalPath);
