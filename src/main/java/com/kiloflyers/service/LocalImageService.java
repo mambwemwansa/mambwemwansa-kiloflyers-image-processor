@@ -82,24 +82,37 @@ public class LocalImageService {
         }
     }
 
-    // Helper method to download file
+ // Helper method to download file
     private String downloadToFile(String imageUrl, String fileName, String directory) throws IOException {
         URL url = new URL(imageUrl);
-        File targetFile = new File(directory + fileName);
+        File targetFile = new File(directory, fileName); // Use comma to separate directory and file name
         createDirectory(directory);
+        
         try {
+            // Download the file
             FileUtils.copyURLToFile(url, targetFile);
-            return targetFile.getAbsolutePath(); // Return absolute path
+            
+            // Check if the file has been downloaded successfully
+            if (targetFile.exists()) {
+                System.out.println("Download successful: " + targetFile.getAbsolutePath());
+                return targetFile.getAbsolutePath(); // Return absolute path
+            } else {
+                throw new IOException("File not found after download: " + targetFile.getAbsolutePath());
+            }
         } catch (IOException e) {
             throw new IOException("Error downloading file from URL: " + imageUrl, e);
         }
     }
 
-    // Create directory if it does not exist
+    // Method to create a directory if it doesn't exist
     private void createDirectory(String directory) {
         File dir = new File(directory);
         if (!dir.exists()) {
-            dir.mkdirs(); // Create directory and any non-existent parent directories
+            if (dir.mkdirs()) {
+                System.out.println("Directory created: " + dir.getAbsolutePath());
+            } else {
+                System.out.println("Failed to create directory: " + dir.getAbsolutePath());
+            }
         }
     }
 }
