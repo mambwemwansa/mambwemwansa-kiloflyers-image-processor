@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -96,19 +97,44 @@ public class ImageReframeService {
 	}
 
 	private BufferedImage loadImageFromUrl(String imageUrl) throws IOException {
-		try {
-			System.out.println("Image URL to be processed: " + imageUrl);
-			URL url = new URL(imageUrl);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setInstanceFollowRedirects(true); // Follow redirects
+	    final int maxRetries = 3;
+	    int attempt = 0;
+	    while (attempt < maxRetries) {
+	        HttpURLConnection connection = null;
+	        try {
+	            System.out.println("Image URL to be processed: " + imageUrl);
+	            URL url = new URL(imageUrl);
+	            connection = (HttpURLConnection) url.openConnection();
+	            connection.setInstanceFollowRedirects(true);
+	            connection.setConnectTimeout(5000); // 5 seconds connect timeout
+	            connection.setReadTimeout(5000);    // 5 seconds read timeout
+	            connection.setRequestProperty("User-Agent", "Mozilla/5.0"); // Custom User-Agent
 
-			return ImageIO.read(connection.getInputStream());
-		} catch (IOException e) {
-			System.err.println("Error loading image from URL: " + imageUrl);
-			e.printStackTrace();
-			throw e;
-		}
+	            int responseCode = connection.getResponseCode();
+	            if (responseCode != HttpURLConnection.HTTP_OK) {
+	                throw new IOException("Failed to load image, HTTP response code: " + responseCode);
+	            }
+
+	            // Use BufferedInputStream for better handling of data read
+	            try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream())) {
+	                return ImageIO.read(in);
+	            }
+	        } catch (IOException e) {
+	            System.err.println("Attempt " + (attempt + 1) + " failed for URL: " + imageUrl);
+	            e.printStackTrace();
+	            if (attempt == maxRetries - 1) { // Last attempt, rethrow the exception
+	                throw e;
+	            }
+	        } finally {
+	            if (connection != null) {
+	                connection.disconnect();
+	            }
+	        }
+	        attempt++;
+	    }
+	    throw new IOException("Failed to load image after " + maxRetries + " attempts for URL: " + imageUrl);
 	}
+
 
 	private BufferedImage loadImageFromLocalPath(String imageLocalPath) throws IOException {
 		Path localFilePath = Paths.get(imageLocalPath);

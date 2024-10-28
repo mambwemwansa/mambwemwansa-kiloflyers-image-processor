@@ -359,5 +359,33 @@ public class ImageProcessingService {
 			e.printStackTrace();
 		}
 	}
+	
+	public void renameFileOnAirtable(String newImageUrl, String recordId) {
+        try {
+            String fieldId = "fldm3FcmoMkuyMQX6"; // Update with your actual field ID
+            String updateUrl = String.format("https://api.airtable.com/v0/%s/%s/%s",
+                    airtableBaseId, airtableTableName, recordId);
+
+            // Perform the update with the new URL
+            HttpResponse<JsonNode> updateResponse = Unirest
+                    .patch(updateUrl)
+                    .header("Authorization", "Bearer " + airtableApiKey)
+                    .header("Content-Type", "application/json")
+                    .body(String.format("{\"fields\": {\"%s\": [{\"url\": \"%s\"}]}}", fieldId, newImageUrl))
+                    .asJson();
+
+            // Check if update was successful
+            if (updateResponse.isSuccess()) {
+                System.out.println("Record updated successfully with new file URL: " 
+                        + updateResponse.getBody());
+            } else {
+                System.err.println("Error updating record: " 
+                        + updateResponse.getStatus() + " - " 
+                        + updateResponse.getBody());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
