@@ -14,6 +14,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -97,13 +99,15 @@ public class ImageReframeService {
 	}
 
 	private BufferedImage loadImageFromUrl(String imageUrl) throws IOException {
+		String formattedURL = formatURL(imageUrl);
+
 	    final int maxRetries = 3;
 	    int attempt = 0;
 	    while (attempt < maxRetries) {
 	        HttpURLConnection connection = null;
 	        try {
-	            System.out.println("Image URL to be processed: " + imageUrl);
-	            URL url = new URL(imageUrl);
+	            System.out.println("Image URL to be processed: " + formattedURL);
+	            URL url = new URL(formattedURL);
 	            connection = (HttpURLConnection) url.openConnection();
 	            connection.setInstanceFollowRedirects(true);
 	            connection.setConnectTimeout(5000); // 5 seconds connect timeout
@@ -120,7 +124,7 @@ public class ImageReframeService {
 	                return ImageIO.read(in);
 	            }
 	        } catch (IOException e) {
-	            System.err.println("Attempt " + (attempt + 1) + " failed for URL: " + imageUrl);
+	            System.err.println("Attempt " + (attempt + 1) + " failed for URL: " + formattedURL);
 	            e.printStackTrace();
 	            if (attempt == maxRetries - 1) { // Last attempt, rethrow the exception
 	                throw e;
@@ -135,6 +139,29 @@ public class ImageReframeService {
 	    throw new IOException("Failed to load image after " + maxRetries + " attempts for URL: " + imageUrl);
 	}
 
+
+	public  String formatURL(String fullURL) {
+        try {
+            // Find the last slash to separate the base URL and filename
+            int lastSlashIndex = fullURL.lastIndexOf("/");
+            if (lastSlashIndex == -1) {
+                throw new IllegalArgumentException("Invalid URL format");
+            }
+
+            // Extract base URL and filename
+            String baseURL = fullURL.substring(0, lastSlashIndex + 1);
+            String fileName = fullURL.substring(lastSlashIndex + 1);
+
+            // Encode the filename to handle spaces and special characters
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
+
+            // Return the full formatted URL
+            return baseURL + encodedFileName;
+        } catch (Exception e) {
+            System.err.println("Error encoding filename: " + e.getMessage());
+            return null;
+        }
+    }
 
 	private BufferedImage loadImageFromLocalPath(String imageLocalPath) throws IOException {
 		Path localFilePath = Paths.get(imageLocalPath);
