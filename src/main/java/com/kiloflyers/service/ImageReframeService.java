@@ -178,23 +178,71 @@ public class ImageReframeService {
 	}
 
 	private BufferedImage createReframedImage(BufferedImage originalImage) {
-		int originalWidth = originalImage.getWidth();
-		int originalHeight = originalImage.getHeight();
+//		int originalWidth = originalImage.getWidth();
+//		int originalHeight = originalImage.getHeight();
+//
+//		double scalingFactor = (double) HEAD_TO_CHIN_HEIGHT / (originalHeight / 3.0);
+//		int scaledWidth = (int) (originalWidth * scalingFactor);
+//		int scaledHeight = (int) (originalHeight * scalingFactor);
+//
+//		BufferedImage reframedImage = new BufferedImage(TARGET_WIDTH, TARGET_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+//		Graphics2D graphics = reframedImage.createGraphics();
+//
+//		int x = (TARGET_WIDTH - scaledWidth) / 2;
+//		int y = EYE_LEVEL_Y - (scaledHeight / 3);
+//
+//		graphics.drawImage(originalImage, 0, 0, TARGET_WIDTH, TARGET_HEIGHT, null);
+//		graphics.dispose();
+		
+		
+		
+		
 
-		double scalingFactor = (double) HEAD_TO_CHIN_HEIGHT / (originalHeight / 3.0);
-		int scaledWidth = (int) (originalWidth * scalingFactor);
-		int scaledHeight = (int) (originalHeight * scalingFactor);
+		// Set target dimensions to the original image dimensions
+        int targetWidth = originalImage.getWidth();
+        int targetHeight = originalImage.getHeight();
+        
+        // Calculate aspect ratio of the original dimensions
+        double aspectRatio = (double) targetWidth / targetHeight;
+        
+        // Determine cropping dimensions to match the original aspect ratio
+        int cropWidth;
+        int cropHeight;
+        double originalAspectRatio = (double) originalImage.getWidth() / originalImage.getHeight();
 
-		BufferedImage reframedImage = new BufferedImage(TARGET_WIDTH, TARGET_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D graphics = reframedImage.createGraphics();
+        if (originalAspectRatio > aspectRatio) {
+            // If the original image is wider than the target aspect ratio,
+            // crop width to match the target aspect ratio, keeping full height
+            cropHeight = targetHeight;
+            cropWidth = (int) (cropHeight * aspectRatio);
+        } else {
+            // If the original image is taller than the target aspect ratio,
+            // crop height to match the target aspect ratio, keeping full width
+            cropWidth = targetWidth;
+            cropHeight = (int) (cropWidth / aspectRatio);
+        }
 
-		int x = (TARGET_WIDTH - scaledWidth) / 2;
-		int y = EYE_LEVEL_Y - (scaledHeight / 3);
+        // Calculate starting points for the crop (centered)
+        int cropStartX = (originalImage.getWidth() - cropWidth) / 2;
+        int cropStartY = (originalImage.getHeight() - cropHeight) / 2;
 
-		graphics.drawImage(originalImage, 0, 0, TARGET_WIDTH, TARGET_HEIGHT, null);
-		graphics.dispose();
+        // Crop the image
+        BufferedImage croppedImage = originalImage.getSubimage(cropStartX, cropStartY, cropWidth, cropHeight);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
-		return reframedImage;
+		return croppedImage;
 	}
 
 	private byte[] convertImageToByteArray(BufferedImage image) throws IOException {
