@@ -32,8 +32,8 @@ public class ImageReframeService {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
-	private static final int TARGET_WIDTH = 4320;
-	private static final int TARGET_HEIGHT = 4320;
+	private static final int TARGET_WIDTH = 10320;
+	private static final int TARGET_HEIGHT = 10320;
 	private static final int HEAD_TO_CHIN_HEIGHT = 777;
 	private static final int EYE_LEVEL_Y = 950;
 	
