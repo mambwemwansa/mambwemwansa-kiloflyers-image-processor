@@ -191,7 +191,7 @@ public class ImageReframeService {
 		int x = (TARGET_WIDTH - scaledWidth) / 2;
 		int y = EYE_LEVEL_Y - (scaledHeight / 3);
 
-		graphics.drawImage(originalImage, x, y, TARGET_WIDTH, TARGET_HEIGHT, null);
+		graphics.drawImage(originalImage, TARGET_WIDTH, EYE_LEVEL_Y, TARGET_WIDTH, TARGET_HEIGHT, null);
 		graphics.dispose();
 
 		return reframedImage;
