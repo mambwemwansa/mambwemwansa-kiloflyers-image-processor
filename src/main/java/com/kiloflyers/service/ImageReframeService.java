@@ -36,6 +36,9 @@ public class ImageReframeService {
 	private static final int TARGET_HEIGHT = 2160;
 	private static final int HEAD_TO_CHIN_HEIGHT = 777;
 	private static final int EYE_LEVEL_Y = 950;
+	
+	@Autowired
+	private  ImageCropService imageCropService;
 
 	/**
 	 * Reframes an image uploaded as a file and saves it.
@@ -48,8 +51,10 @@ public class ImageReframeService {
 		BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
 		BufferedImage reframedImage = createReframedImage(originalImage);
 		byte[] imageBytes = convertImageToByteArray(reframedImage);
+		byte[] croppedImage = imageCropService.cropAndResizeImage(imageBytes, 2160, 2160);
+		   
 
-		return imageBytes;
+		return croppedImage;
 	}
 
 	public String reframeImage(String imageUrl, String fileName) throws IOException {
