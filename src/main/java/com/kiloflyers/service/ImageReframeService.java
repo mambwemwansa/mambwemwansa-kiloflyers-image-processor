@@ -32,8 +32,8 @@ public class ImageReframeService {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
-	private static final int TARGET_WIDTH = 2160;
-	private static final int TARGET_HEIGHT = 2160;
+	private static final int TARGET_WIDTH = 4320;
+	private static final int TARGET_HEIGHT = 4320;
 	private static final int HEAD_TO_CHIN_HEIGHT = 777;
 	private static final int EYE_LEVEL_Y = 950;
 	
@@ -51,10 +51,11 @@ public class ImageReframeService {
 		BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
 		BufferedImage reframedImage = createReframedImage(originalImage);
 		byte[] imageBytes = convertImageToByteArray(reframedImage);
+		
 		byte[] croppedImage = imageCropService.cropAndResizeImage(imageBytes, 2160, 2160);
 		   
 
-		return croppedImage;
+		return imageBytes;
 	}
 
 	public String reframeImage(String imageUrl, String fileName) throws IOException {
