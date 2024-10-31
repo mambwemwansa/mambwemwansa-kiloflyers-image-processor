@@ -178,72 +178,48 @@ public class ImageReframeService {
 	}
 
 	private BufferedImage createReframedImage(BufferedImage originalImage) {
-//		int originalWidth = originalImage.getWidth();
-//		int originalHeight = originalImage.getHeight();
-//
-//		double scalingFactor = (double) HEAD_TO_CHIN_HEIGHT / (originalHeight / 3.0);
-//		int scaledWidth = (int) (originalWidth * scalingFactor);
-//		int scaledHeight = (int) (originalHeight * scalingFactor);
-//
-//		BufferedImage reframedImage = new BufferedImage(TARGET_WIDTH, TARGET_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-//		Graphics2D graphics = reframedImage.createGraphics();
-//
-//		int x = (TARGET_WIDTH - scaledWidth) / 2;
-//		int y = EYE_LEVEL_Y - (scaledHeight / 3);
-//
-//		graphics.drawImage(originalImage, 0, 0, TARGET_WIDTH, TARGET_HEIGHT, null);
-//		graphics.dispose();
-		
-		
-		
-		
+	    // Set target dimensions to the original image dimensions
+	    int targetWidth = originalImage.getWidth();
+	    int targetHeight = originalImage.getHeight();
 
-		// Set target dimensions to the original image dimensions
-        int targetWidth = originalImage.getWidth();
-        int targetHeight = originalImage.getHeight();
-        
-        // Calculate aspect ratio of the original dimensions
-        double aspectRatio = (double) targetWidth / targetHeight;
-        
-        // Determine cropping dimensions to match the original aspect ratio
-        int cropWidth;
-        int cropHeight;
-        double originalAspectRatio = (double) originalImage.getWidth() / originalImage.getHeight();
+	    // Calculate aspect ratio of the original dimensions
+	    double aspectRatio = (double) targetWidth / targetHeight;
 
-        if (originalAspectRatio > aspectRatio) {
-            // If the original image is wider than the target aspect ratio,
-            // crop width to match the target aspect ratio, keeping full height
-            cropHeight = targetHeight;
-            cropWidth = (int) (cropHeight * aspectRatio);
-        } else {
-            // If the original image is taller than the target aspect ratio,
-            // crop height to match the target aspect ratio, keeping full width
-            cropWidth = targetWidth;
-            cropHeight = (int) (cropWidth / aspectRatio);
-        }
+	    // Determine cropping dimensions to match the original aspect ratio
+	    int cropWidth;
+	    int cropHeight;
+	    double originalAspectRatio = (double) originalImage.getWidth() / originalImage.getHeight();
 
-        // Calculate starting points for the crop (centered)
-        int cropStartX = (originalImage.getWidth() - cropWidth) / 2;
-        int cropStartY = (originalImage.getHeight() - cropHeight) / 2;
+	    if (originalAspectRatio > aspectRatio) {
+	        // If the original image is wider than the target aspect ratio,
+	        // crop width to match the target aspect ratio, keeping full height
+	        cropHeight = targetHeight;
+	        cropWidth = (int) (cropHeight * aspectRatio);
+	    } else {
+	        // If the original image is taller than the target aspect ratio,
+	        // crop height to match the target aspect ratio, keeping full width
+	        cropWidth = targetWidth;
+	        cropHeight = (int) (cropWidth / aspectRatio);
+	    }
 
-        // Crop the image
-        BufferedImage croppedImage = originalImage.getSubimage(cropStartX, cropStartY, cropWidth, cropHeight);
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	    // Calculate starting points for the crop (centered)
+	    int cropStartX = (originalImage.getWidth() - cropWidth) / 2;
+	    int cropStartY = (originalImage.getHeight() - cropHeight) / 2;
 
-		return croppedImage;
+	    // Crop the image to the calculated dimensions
+	    BufferedImage croppedImage = originalImage.getSubimage(cropStartX, cropStartY, cropWidth, cropHeight);
+
+	    // Create a new BufferedImage to scale the cropped image to the target dimensions
+	    BufferedImage reframedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D graphics = reframedImage.createGraphics();
+
+	    // Draw the cropped image onto the new BufferedImage, scaling it to fit target dimensions
+	    graphics.drawImage(croppedImage, 0, 0, targetWidth, targetHeight, null);
+	    graphics.dispose();
+
+	    return reframedImage;
 	}
+
 
 	private byte[] convertImageToByteArray(BufferedImage image) throws IOException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
