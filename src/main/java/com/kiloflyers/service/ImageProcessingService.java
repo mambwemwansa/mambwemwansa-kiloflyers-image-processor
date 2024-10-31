@@ -101,14 +101,23 @@ public class ImageProcessingService {
 	}
 
 	public String removeBackground(AirtableRecord record) {
+		
 		List<Image> originalImages = record.getFields().getOriginalImage();
 		if (originalImages.isEmpty()) {
 			System.out.println("No original images found for record: " + String.valueOf(record));
 			return null;
 		}
+		String  filename=((Image) originalImages.get(0)).getFilename();
+		String newExtension = ".png";
+        
+        // Remove the current extension and add the new one
+        String newFileName = filename.replaceFirst("[.][^.]+$", "") + newExtension;
+		
+		
+		
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		String backgroundRemovedImageUrl = callRemoveBgApi(originalImageUrl,
-				((Image) originalImages.get(0)).getFilename());
+				newFileName);
 		System.out
 				.println("Removed Background  Image has been succesfully and stored in :" + backgroundRemovedImageUrl);
 		uploadNoBckImageToAirtable(backgroundRemovedImageUrl, record.getId());
@@ -127,6 +136,11 @@ public class ImageProcessingService {
 			System.out.println("No original images found for record: " + String.valueOf(record));
 			return;
 		}
+		String  filename=((Image) originalImages.get(0)).getFilename();
+		String newExtension = ".png";
+        
+        // Remove the current extension and add the new one
+        String newFileName = filename.replaceFirst("[.][^.]+$", "") + newExtension;
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		try {
 			framedUrl = localImageService.saveFramedImageToCache(originalImageUrl,
@@ -135,7 +149,7 @@ public class ImageProcessingService {
 			
 			
 			finalframedUrl = imageReframeService.reframeImage(framedUrl,
-					((Image) originalImages.get(0)).getFilename());
+					newFileName);
 
 			System.out.println("Framed Image has been succesfully and stored in :" + finalframedUrl);
 		} catch (IOException e) {
@@ -154,11 +168,15 @@ public class ImageProcessingService {
 			return;
 		}
 
-		String fileName = ((Image) originalImages.get(0)).getFilename();
+		String  filename=((Image) originalImages.get(0)).getFilename();
+		String newExtension = ".png";
+        
+        // Remove the current extension and add the new one
+        String newFileName = filename.replaceFirst("[.][^.]+$", "") + newExtension;
 		
 		try {
 			finalframedCroppedUrl = imageReframeService.reframeAndSaveCroppedImageFromUrl(backgroundRemovedImageUrl,
-					fileName);
+					newFileName);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -174,7 +192,13 @@ public class ImageProcessingService {
 			System.out.println("No original images found for set name record: " + String.valueOf(record));
 			return;
 		}
-		updateImageName(((Image) originalImages.get(0)).getFilename(), record.getId());
+		String  filename=((Image) originalImages.get(0)).getFilename();
+		String newExtension = ".png";
+        
+        // Remove the current extension and add the new one
+        String newFileName = filename.replaceFirst("[.][^.]+$", "") + newExtension;
+		
+		updateImageName(newFileName, record.getId());
 	}
 
 	private String callRemoveBgApi(String imageUrl, String filename) {
