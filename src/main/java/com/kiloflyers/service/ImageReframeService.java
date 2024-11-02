@@ -272,31 +272,34 @@ public class ImageReframeService {
 	}
 	
 
-    /**
-     * Merges the provided BufferedImage onto a transparent canvas and returns the merged image as a BufferedImage.
+	/**
+     * Merges the provided BufferedImage onto a transparent canvas of specified dimensions (4360x4360)
+     * and returns the merged image as a BufferedImage.
      * Any area of the canvas not covered by the input image remains transparent.
      *
      * @param inputImage the BufferedImage to be merged onto the canvas
      * @return a BufferedImage of the merged image on a transparent canvas
      */
     public BufferedImage mergeImageWithCanvas(BufferedImage inputImage) {
-        // Create a transparent canvas
+        // Create a transparent canvas of the specified size
         BufferedImage canvas = new BufferedImage(CANVAS_WIDTH, CANVAS_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = canvas.createGraphics();
 
-        // Enable smooth rendering
+        // Set rendering hints for high quality
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-        // Calculate the x and y coordinates to center the input image on the canvas
+        // Calculate coordinates to center the input image on the canvas
         int x = (CANVAS_WIDTH - inputImage.getWidth()) / 2;
         int y = (CANVAS_HEIGHT - inputImage.getHeight()) / 2;
 
-        // Draw the input image onto the canvas at the centered position
+        // Draw the input image onto the canvas at the calculated coordinates
         graphics.drawImage(inputImage, x, y, null);
+        
+        // Dispose graphics context to release resources
         graphics.dispose();
 
-        // Return the canvas with the input image merged on it, with transparent areas around it
+        // Return the full-size canvas with the centered image
         return canvas;
     }
 }
