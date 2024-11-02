@@ -274,34 +274,41 @@ public class ImageReframeService {
 		return baseUrl + folder + fileName;
 	}
 
-    public BufferedImage mergeImageWithCanvas(BufferedImage originalImage) {
-        // Define the canvas dimensions (4360x4360) with transparency
-        int canvasWidth = 4360;
-        int canvasHeight = 4360;
-        
-        // Create a transparent canvas
-        BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = canvas.createGraphics();
+	public BufferedImage mergeImageWithCanvas(BufferedImage originalImage) {
+		// Define the canvas dimensions (4360x4360) with transparency
+		int canvasWidth = 4360;
+		int canvasHeight = 4360;
 
-        // Enable anti-aliasing and transparency for smooth rendering
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setComposite(AlphaComposite.SrcOver);
+		// Define the target scale factor to make the subject image appear larger on the
+		// canvas
+		double scaleFactor = 4.0; // Adjust this scale factor to control the size on the canvas
 
-        // Calculate the centered position, based on your sample image specifications
-        int targetWidth = originalImage.getWidth();
-        int targetHeight = originalImage.getHeight();
+		// Calculate new dimensions for the original image based on the scale factor
+		int targetWidth = (int) (originalImage.getWidth() * scaleFactor);
+		int targetHeight = (int) (originalImage.getHeight() * scaleFactor);
 
-        // Center horizontally (canvas center - half image width)
-        int x = (canvasWidth - targetWidth) / 2;
+		// Create a transparent canvas
+		BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = canvas.createGraphics();
 
-        // Position vertically based on eye level (950px from top for the eye level)
-        // Assuming eye level in original image is about 644px from the top
-        int y = 950 - 644;
+		// Enable anti-aliasing and transparency for smooth rendering
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setComposite(AlphaComposite.SrcOver);
 
-        // Draw the original image on the canvas at calculated position
-        g.drawImage(originalImage, x, y, null);
-        g.dispose();
+		// Scale the original image to the target size
+		Image scaledImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
 
-        return canvas;
-    }
+		// Calculate the centered position
+		int x = (canvasWidth - targetWidth) / 2;
+
+		// Adjust vertical position to align with desired eye level
+		int yOffsetFromTop = 950 - 644; // Offset based on the example's eye level
+		int y = yOffsetFromTop;
+
+		// Draw the scaled image onto the canvas at the calculated position
+		g.drawImage(scaledImage, x, y, null);
+		g.dispose();
+
+		return canvas;
+	}
 }
