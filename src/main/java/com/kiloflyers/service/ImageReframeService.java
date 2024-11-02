@@ -32,8 +32,8 @@ public class ImageReframeService {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
-	private static final int CANVAS_WIDTH = 4320;
-	private static final int CANVAS_HEIGHT = 4320;
+	private static final int CANVAS_WIDTH = 2130;
+	private static final int CANVAS_HEIGHT = 2130;
 
 	private static final int TARGET_WIDTH = 4320;
 	private static final int TARGET_HEIGHT = 4320;
