@@ -31,17 +31,20 @@ public class ImageReframeService {
 
 	@Autowired
 	private ResourceLoader resourceLoader;
-	
-    private static final int CANVAS_WIDTH = 4320;
-    private static final int CANVAS_HEIGHT = 4320;
+
+	private static final int CANVAS_WIDTH = 4320;
+	private static final int CANVAS_HEIGHT = 4320;
 
 	private static final int TARGET_WIDTH = 4320;
 	private static final int TARGET_HEIGHT = 4320;
 	private static final int HEAD_TO_CHIN_HEIGHT = 777;
 	private static final int EYE_LEVEL_Y = 950;
-	
+
+	private static final int IMAGE_WIDTH = 644;
+	private static final int IMAGE_HEIGHT = 777;
+
 	@Autowired
-	private  ImageCropService imageCropService;
+	private ImageCropService imageCropService;
 
 	/**
 	 * Reframes an image uploaded as a file and saves it.
@@ -54,9 +57,9 @@ public class ImageReframeService {
 		BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
 		BufferedImage reframedImage = mergeImageWithCanvas(originalImage);
 		byte[] imageBytes = convertImageToByteArray(reframedImage);
-		
-		//byte[] croppedImage = imageCropService.cropAndResizeImage(imageBytes, 2160, 2160);
-		   
+
+		// byte[] croppedImage = imageCropService.cropAndResizeImage(imageBytes, 2160,
+		// 2160);
 
 		return imageBytes;
 	}
@@ -110,67 +113,66 @@ public class ImageReframeService {
 	private BufferedImage loadImageFromUrl(String imageUrl) throws IOException {
 		String formattedURL = formatURL(imageUrl);
 
-	    final int maxRetries = 3;
-	    int attempt = 0;
-	    while (attempt < maxRetries) {
-	        HttpURLConnection connection = null;
-	        try {
-	            System.out.println("Image URL to be processed: " + formattedURL);
-	            URL url = new URL(formattedURL);
-	            connection = (HttpURLConnection) url.openConnection();
-	            connection.setInstanceFollowRedirects(true);
-	            connection.setConnectTimeout(5000); // 5 seconds connect timeout
-	            connection.setReadTimeout(5000);    // 5 seconds read timeout
-	            connection.setRequestProperty("User-Agent", "Mozilla/5.0"); // Custom User-Agent
+		final int maxRetries = 3;
+		int attempt = 0;
+		while (attempt < maxRetries) {
+			HttpURLConnection connection = null;
+			try {
+				System.out.println("Image URL to be processed: " + formattedURL);
+				URL url = new URL(formattedURL);
+				connection = (HttpURLConnection) url.openConnection();
+				connection.setInstanceFollowRedirects(true);
+				connection.setConnectTimeout(5000); // 5 seconds connect timeout
+				connection.setReadTimeout(5000); // 5 seconds read timeout
+				connection.setRequestProperty("User-Agent", "Mozilla/5.0"); // Custom User-Agent
 
-	            int responseCode = connection.getResponseCode();
-	            if (responseCode != HttpURLConnection.HTTP_OK) {
-	                throw new IOException("Failed to load image, HTTP response code: " + responseCode);
-	            }
+				int responseCode = connection.getResponseCode();
+				if (responseCode != HttpURLConnection.HTTP_OK) {
+					throw new IOException("Failed to load image, HTTP response code: " + responseCode);
+				}
 
-	            // Use BufferedInputStream for better handling of data read
-	            try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream())) {
-	                return ImageIO.read(in);
-	            }
-	        } catch (IOException e) {
-	            System.err.println("Attempt " + (attempt + 1) + " failed for URL: " + formattedURL);
-	            e.printStackTrace();
-	            if (attempt == maxRetries - 1) { // Last attempt, rethrow the exception
-	                throw e;
-	            }
-	        } finally {
-	            if (connection != null) {
-	                connection.disconnect();
-	            }
-	        }
-	        attempt++;
-	    }
-	    throw new IOException("Failed to load image after " + maxRetries + " attempts for URL: " + imageUrl);
+				// Use BufferedInputStream for better handling of data read
+				try (BufferedInputStream in = new BufferedInputStream(connection.getInputStream())) {
+					return ImageIO.read(in);
+				}
+			} catch (IOException e) {
+				System.err.println("Attempt " + (attempt + 1) + " failed for URL: " + formattedURL);
+				e.printStackTrace();
+				if (attempt == maxRetries - 1) { // Last attempt, rethrow the exception
+					throw e;
+				}
+			} finally {
+				if (connection != null) {
+					connection.disconnect();
+				}
+			}
+			attempt++;
+		}
+		throw new IOException("Failed to load image after " + maxRetries + " attempts for URL: " + imageUrl);
 	}
 
+	public String formatURL(String fullURL) {
+		try {
+			// Find the last slash to separate the base URL and filename
+			int lastSlashIndex = fullURL.lastIndexOf("/");
+			if (lastSlashIndex == -1) {
+				throw new IllegalArgumentException("Invalid URL format");
+			}
 
-	public  String formatURL(String fullURL) {
-        try {
-            // Find the last slash to separate the base URL and filename
-            int lastSlashIndex = fullURL.lastIndexOf("/");
-            if (lastSlashIndex == -1) {
-                throw new IllegalArgumentException("Invalid URL format");
-            }
+			// Extract base URL and filename
+			String baseURL = fullURL.substring(0, lastSlashIndex + 1);
+			String fileName = fullURL.substring(lastSlashIndex + 1);
 
-            // Extract base URL and filename
-            String baseURL = fullURL.substring(0, lastSlashIndex + 1);
-            String fileName = fullURL.substring(lastSlashIndex + 1);
+			// Encode the filename to handle spaces and special characters
+			String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
 
-            // Encode the filename to handle spaces and special characters
-            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
-
-            // Return the full formatted URL
-            return baseURL + encodedFileName;
-        } catch (Exception e) {
-            System.err.println("Error encoding filename: " + e.getMessage());
-            return null;
-        }
-    }
+			// Return the full formatted URL
+			return baseURL + encodedFileName;
+		} catch (Exception e) {
+			System.err.println("Error encoding filename: " + e.getMessage());
+			return null;
+		}
+	}
 
 	private BufferedImage loadImageFromLocalPath(String imageLocalPath) throws IOException {
 		Path localFilePath = Paths.get(imageLocalPath);
@@ -181,48 +183,49 @@ public class ImageReframeService {
 	}
 
 	private BufferedImage createReframedImage(BufferedImage originalImage) {
-	    // Set target dimensions to the original image dimensions
-	    int targetWidth = originalImage.getWidth();
-	    int targetHeight = originalImage.getHeight();
+		// Set target dimensions to the original image dimensions
+		int targetWidth = originalImage.getWidth();
+		int targetHeight = originalImage.getHeight();
 
-	    // Calculate aspect ratio of the original dimensions
-	    double aspectRatio = (double) targetWidth / targetHeight;
+		// Calculate aspect ratio of the original dimensions
+		double aspectRatio = (double) targetWidth / targetHeight;
 
-	    // Determine cropping dimensions to match the original aspect ratio
-	    int cropWidth;
-	    int cropHeight;
-	    double originalAspectRatio = (double) originalImage.getWidth() / originalImage.getHeight();
+		// Determine cropping dimensions to match the original aspect ratio
+		int cropWidth;
+		int cropHeight;
+		double originalAspectRatio = (double) originalImage.getWidth() / originalImage.getHeight();
 
-	    if (originalAspectRatio > aspectRatio) {
-	        // If the original image is wider than the target aspect ratio,
-	        // crop width to match the target aspect ratio, keeping full height
-	        cropHeight = targetHeight;
-	        cropWidth = (int) (cropHeight * aspectRatio);
-	    } else {
-	        // If the original image is taller than the target aspect ratio,
-	        // crop height to match the target aspect ratio, keeping full width
-	        cropWidth = targetWidth;
-	        cropHeight = (int) (cropWidth / aspectRatio);
-	    }
+		if (originalAspectRatio > aspectRatio) {
+			// If the original image is wider than the target aspect ratio,
+			// crop width to match the target aspect ratio, keeping full height
+			cropHeight = targetHeight;
+			cropWidth = (int) (cropHeight * aspectRatio);
+		} else {
+			// If the original image is taller than the target aspect ratio,
+			// crop height to match the target aspect ratio, keeping full width
+			cropWidth = targetWidth;
+			cropHeight = (int) (cropWidth / aspectRatio);
+		}
 
-	    // Calculate starting points for the crop (centered)
-	    int cropStartX = (originalImage.getWidth() - cropWidth) / 2;
-	    int cropStartY = (originalImage.getHeight() - cropHeight) / 2;
+		// Calculate starting points for the crop (centered)
+		int cropStartX = (originalImage.getWidth() - cropWidth) / 2;
+		int cropStartY = (originalImage.getHeight() - cropHeight) / 2;
 
-	    // Crop the image to the calculated dimensions
-	    BufferedImage croppedImage = originalImage.getSubimage(cropStartX, cropStartY, cropWidth, cropHeight);
+		// Crop the image to the calculated dimensions
+		BufferedImage croppedImage = originalImage.getSubimage(cropStartX, cropStartY, cropWidth, cropHeight);
 
-	    // Create a new BufferedImage to scale the cropped image to the target dimensions
-	    BufferedImage reframedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D graphics = reframedImage.createGraphics();
+		// Create a new BufferedImage to scale the cropped image to the target
+		// dimensions
+		BufferedImage reframedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D graphics = reframedImage.createGraphics();
 
-	    // Draw the cropped image onto the new BufferedImage, scaling it to fit target dimensions
-	    graphics.drawImage(croppedImage, 0, 0, targetWidth, targetHeight, null);
-	    graphics.dispose();
+		// Draw the cropped image onto the new BufferedImage, scaling it to fit target
+		// dimensions
+		graphics.drawImage(croppedImage, 0, 0, targetWidth, targetHeight, null);
+		graphics.dispose();
 
-	    return reframedImage;
+		return reframedImage;
 	}
-
 
 	private byte[] convertImageToByteArray(BufferedImage image) throws IOException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -270,12 +273,18 @@ public class ImageReframeService {
 	private String buildImageUrl(String fileName, String folder) {
 		return baseUrl + folder + fileName;
 	}
-	
 
 	/**
-     * Merges the provided BufferedImage onto a transparent canvas of specified dimensions (4360x4360)
-     * and returns the merged image as a BufferedImage.
-     * Any area of the canvas not covered by the input image remains transparent.
+	 * Merges the provided BufferedImage onto a transparent canvas of specified
+	 * dimensions (4360x4360) and returns the merged image as a BufferedImage. Any
+	 * area of the canvas not covered by the input image remains transparent.
+	 *
+	 * @param inputImage the BufferedImage to be merged onto the canvas
+	 * @return a BufferedImage of the merged image on a transparent canvas
+	 */
+	   /**
+     * Merges the provided BufferedImage onto a transparent canvas of specified dimensions (4360x4360),
+     * resizes it to 644x777, and positions it so that the eye level aligns with 950 px from the top.
      *
      * @param inputImage the BufferedImage to be merged onto the canvas
      * @return a BufferedImage of the merged image on a transparent canvas
@@ -285,16 +294,23 @@ public class ImageReframeService {
         BufferedImage canvas = new BufferedImage(CANVAS_WIDTH, CANVAS_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = canvas.createGraphics();
 
-        // Set rendering hints for high quality
+        // Enable smooth rendering
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-        // Calculate coordinates to center the input image on the canvas
-        int x = (CANVAS_WIDTH - inputImage.getWidth()) / 2;
-        int y = (CANVAS_HEIGHT - inputImage.getHeight()) / 2;
+        // Resize the input image to 644x777
+        BufferedImage resizedImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = resizedImage.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.drawImage(inputImage, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, null);
+        g2d.dispose();
 
-        // Draw the input image onto the canvas at the calculated coordinates
-        graphics.drawImage(inputImage, x, y, null);
+        // Calculate coordinates to position the resized image on the canvas
+        int x = (CANVAS_WIDTH - IMAGE_WIDTH) / 2; // Center horizontally
+        int y = EYE_LEVEL_Y - (IMAGE_HEIGHT / 2); // Position to align eye level
+
+        // Draw the resized image onto the canvas at the calculated position
+        graphics.drawImage(resizedImage, x, y, null);
         
         // Dispose graphics context to release resources
         graphics.dispose();
