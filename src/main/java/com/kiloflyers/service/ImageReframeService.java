@@ -31,6 +31,9 @@ public class ImageReframeService {
 
 	@Autowired
 	private ResourceLoader resourceLoader;
+	
+    private static final int CANVAS_WIDTH = 4320;
+    private static final int CANVAS_HEIGHT = 4320;
 
 	private static final int TARGET_WIDTH = 4320;
 	private static final int TARGET_HEIGHT = 4320;
@@ -49,7 +52,7 @@ public class ImageReframeService {
 	 */
 	public byte[] reframeImage(MultipartFile imageFile) throws IOException {
 		BufferedImage originalImage = loadImageFromMultipartFile(imageFile);
-		BufferedImage reframedImage = createReframedImage(originalImage);
+		BufferedImage reframedImage = mergeImageWithCanvas(originalImage);
 		byte[] imageBytes = convertImageToByteArray(reframedImage);
 		
 		//byte[] croppedImage = imageCropService.cropAndResizeImage(imageBytes, 2160, 2160);
@@ -267,4 +270,33 @@ public class ImageReframeService {
 	private String buildImageUrl(String fileName, String folder) {
 		return baseUrl + folder + fileName;
 	}
+	
+
+	/**
+     * Merges the provided BufferedImage onto a transparent canvas and returns the merged image as a BufferedImage.
+     *
+     * @param inputImage the BufferedImage to be merged onto the canvas
+     * @return a BufferedImage of the merged image
+     */
+    public BufferedImage mergeImageWithCanvas(BufferedImage inputImage) {
+        // Create a transparent canvas
+        BufferedImage canvas = new BufferedImage(CANVAS_WIDTH, CANVAS_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = canvas.createGraphics();
+
+        // Set transparency options for smooth rendering
+        graphics.setComposite(AlphaComposite.Src);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        // Calculate the x and y coordinates to center the input image on the canvas
+        int x = (CANVAS_WIDTH - inputImage.getWidth()) / 2;
+        int y = (CANVAS_HEIGHT - inputImage.getHeight()) / 2;
+
+        // Draw the input image onto the canvas, centered
+        graphics.drawImage(inputImage, x, y, null);
+        graphics.dispose();
+
+        // Return the canvas with the merged image as a BufferedImage
+        return canvas;
+    }
 }
