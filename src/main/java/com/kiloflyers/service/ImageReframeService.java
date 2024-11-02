@@ -81,7 +81,7 @@ public class ImageReframeService {
 	 */
 	public String reframeImageFromUrl(String imagePath, String fileName) throws IOException {
 		BufferedImage originalImage = loadImageFromLocalPath(imagePath);
-		BufferedImage reframedImage = createReframedImage(originalImage);
+		BufferedImage reframedImage = mergeImageWithCanvas(originalImage);
 
 		saveFramedImage(reframedImage, fileName);
 		return buildImageUrl(fileName, "/framed/");
@@ -97,7 +97,7 @@ public class ImageReframeService {
 	 */
 	public String reframeAndSaveCroppedImageFromUrl(String imageUrl, String fileName) throws IOException {
 		BufferedImage originalImage = loadImageFromUrl(imageUrl);
-		BufferedImage reframedImage = createReframedImage(originalImage);
+		BufferedImage reframedImage = mergeImageWithCanvas(originalImage);
 
 		saveFramedCroppedImage(reframedImage, fileName);
 		return buildImageUrl(fileName, "/framedcropped/");
