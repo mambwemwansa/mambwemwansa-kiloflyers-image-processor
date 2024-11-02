@@ -64,7 +64,7 @@ public class ImageReframeService {
 	public String reframeImage(String imageUrl, String fileName) throws IOException {
 		System.out.println("Framing process starting..");
 		BufferedImage originalImage = loadImageFromUrl(imageUrl);
-		BufferedImage reframedImage = createReframedImage(originalImage);
+		BufferedImage reframedImage = mergeImageWithCanvas(originalImage);
 		byte[] imageBytes = convertImageToByteArray(reframedImage);
 
 		// Get the URL after saving the image via LocalImageService
