@@ -274,48 +274,34 @@ public class ImageReframeService {
 		return baseUrl + folder + fileName;
 	}
 
-	/**
-	 * Merges the provided BufferedImage onto a transparent canvas of specified
-	 * dimensions (4360x4360) and returns the merged image as a BufferedImage. Any
-	 * area of the canvas not covered by the input image remains transparent.
-	 *
-	 * @param inputImage the BufferedImage to be merged onto the canvas
-	 * @return a BufferedImage of the merged image on a transparent canvas
-	 */
-	   /**
-     * Merges the provided BufferedImage onto a transparent canvas of specified dimensions (4360x4360),
-     * resizes it to 644x777, and positions it so that the eye level aligns with 950 px from the top.
-     *
-     * @param inputImage the BufferedImage to be merged onto the canvas
-     * @return a BufferedImage of the merged image on a transparent canvas
-     */
-    public BufferedImage mergeImageWithCanvas(BufferedImage inputImage) {
-        // Create a transparent canvas of the specified size
-        BufferedImage canvas = new BufferedImage(CANVAS_WIDTH, CANVAS_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = canvas.createGraphics();
-
-        // Enable smooth rendering
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-        // Resize the input image to 644x777
-        BufferedImage resizedImage = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = resizedImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2d.drawImage(inputImage, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, null);
-        g2d.dispose();
-
-        // Calculate coordinates to position the resized image on the canvas
-        int x = (CANVAS_WIDTH - IMAGE_WIDTH) / 2; // Center horizontally
-        int y = EYE_LEVEL_Y - (IMAGE_HEIGHT / 2); // Position to align eye level
-
-        // Draw the resized image onto the canvas at the calculated position
-        graphics.drawImage(resizedImage, x, y, null);
+    public BufferedImage mergeImageWithCanvas(BufferedImage originalImage) {
+        // Define the canvas dimensions (4360x4360) with transparency
+        int canvasWidth = 4360;
+        int canvasHeight = 4360;
         
-        // Dispose graphics context to release resources
-        graphics.dispose();
+        // Create a transparent canvas
+        BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = canvas.createGraphics();
 
-        // Return the full-size canvas with the centered image
+        // Enable anti-aliasing and transparency for smooth rendering
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setComposite(AlphaComposite.SrcOver);
+
+        // Calculate the centered position, based on your sample image specifications
+        int targetWidth = originalImage.getWidth();
+        int targetHeight = originalImage.getHeight();
+
+        // Center horizontally (canvas center - half image width)
+        int x = (canvasWidth - targetWidth) / 2;
+
+        // Position vertically based on eye level (950px from top for the eye level)
+        // Assuming eye level in original image is about 644px from the top
+        int y = 950 - 644;
+
+        // Draw the original image on the canvas at calculated position
+        g.drawImage(originalImage, x, y, null);
+        g.dispose();
+
         return canvas;
     }
 }
