@@ -272,19 +272,19 @@ public class ImageReframeService {
 	}
 	
 
-	/**
+    /**
      * Merges the provided BufferedImage onto a transparent canvas and returns the merged image as a BufferedImage.
+     * Any area of the canvas not covered by the input image remains transparent.
      *
      * @param inputImage the BufferedImage to be merged onto the canvas
-     * @return a BufferedImage of the merged image
+     * @return a BufferedImage of the merged image on a transparent canvas
      */
     public BufferedImage mergeImageWithCanvas(BufferedImage inputImage) {
         // Create a transparent canvas
         BufferedImage canvas = new BufferedImage(CANVAS_WIDTH, CANVAS_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = canvas.createGraphics();
 
-        // Set transparency options for smooth rendering
-        graphics.setComposite(AlphaComposite.Src);
+        // Enable smooth rendering
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
@@ -292,11 +292,11 @@ public class ImageReframeService {
         int x = (CANVAS_WIDTH - inputImage.getWidth()) / 2;
         int y = (CANVAS_HEIGHT - inputImage.getHeight()) / 2;
 
-        // Draw the input image onto the canvas, centered
+        // Draw the input image onto the canvas at the centered position
         graphics.drawImage(inputImage, x, y, null);
         graphics.dispose();
 
-        // Return the canvas with the merged image as a BufferedImage
+        // Return the canvas with the input image merged on it, with transparent areas around it
         return canvas;
     }
 }
