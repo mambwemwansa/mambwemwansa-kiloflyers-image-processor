@@ -9,7 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class LocalImageService {
@@ -22,6 +25,27 @@ public class LocalImageService {
     public final ConcurrentHashMap<String, byte[]> downloadCache = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<String, byte[]> framedCache = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<String, byte[]> framedCroppedCache = new ConcurrentHashMap<>();
+
+    // Clear caches on startup
+    @PostConstruct
+    public void clearCacheOnStartup() {
+        clearAllCaches();
+    }
+
+    // Schedule cache clearing every hour
+    @Scheduled(fixedRate = 3600000) // 1 hour in milliseconds
+    public void clearCacheHourly() {
+        clearAllCaches();
+    }
+
+    // Method to clear all caches
+    private void clearAllCaches() {
+        imageCache.clear();
+        downloadCache.clear();
+        framedCache.clear();
+        framedCroppedCache.clear();
+        System.out.println("All caches have been cleared.");
+    }
 
     // Save image bytes to cache instead of static folder
     public String saveImageToCache(byte[] imageBytes, String fileName) {
