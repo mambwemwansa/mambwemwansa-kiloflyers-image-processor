@@ -1,18 +1,20 @@
 package com.kiloflyers.service;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.concurrent.ConcurrentHashMap;
-
+import javax.imageio.ImageIO;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
+import com.kiloflyers.util.LimitedCache;
 
 @Service
 public class LocalImageService {
@@ -20,36 +22,16 @@ public class LocalImageService {
     @Value("${base-url}")
     private String baseUrl;
 
-    // Define cache maps to replace directories
-    public final ConcurrentHashMap<String, byte[]> imageCache = new ConcurrentHashMap<>();
-    public final ConcurrentHashMap<String, byte[]> downloadCache = new ConcurrentHashMap<>();
-    public final ConcurrentHashMap<String, byte[]> framedCache = new ConcurrentHashMap<>();
-    public final ConcurrentHashMap<String, byte[]> framedCroppedCache = new ConcurrentHashMap<>();
+    // Define caches with a max size of 50 entries each to prevent excessive memory use
+    public final LimitedCache<String, byte[]> imageCache = new LimitedCache<>(50);
+    public final LimitedCache<String, byte[]> downloadCache = new LimitedCache<>(50);
+    public final LimitedCache<String, byte[]> framedCache = new LimitedCache<>(50);
+    public final LimitedCache<String, byte[]> framedCroppedCache = new LimitedCache<>(50);
 
-    // Clear caches on startup
-    @PostConstruct
-    public void clearCacheOnStartup() {
-        clearAllCaches();
-    }
-
-    // Schedule cache clearing every hour
-    @Scheduled(fixedRate = 3600000) // 1 hour in milliseconds
-    public void clearCacheHourly() {
-        clearAllCaches();
-    }
-
-    // Method to clear all caches
-    private void clearAllCaches() {
-        imageCache.clear();
-        downloadCache.clear();
-        framedCache.clear();
-        framedCroppedCache.clear();
-        System.out.println("All caches have been cleared.");
-    }
-
-    // Save image bytes to cache instead of static folder
-    public String saveImageToCache(byte[] imageBytes, String fileName) {
-        imageCache.put(fileName, imageBytes);
+    // Compress and save image bytes to the image cache
+    public String saveImageToCache(byte[] imageBytes, String fileName) throws IOException {
+        byte[] compressedImageBytes = compressImage(imageBytes);
+        imageCache.put(fileName, compressedImageBytes);
         return this.baseUrl + "/images/" + fileName;
     }
 
@@ -64,31 +46,34 @@ public class LocalImageService {
         }
     }
 
-    // Download image to cache instead of static folder
+    // Download and cache compressed image bytes
     public String downloadImageToCache(String imageUrl, String fileName) throws IOException {
         byte[] imageBytes = downloadImageBytes(imageUrl);
-        downloadCache.put(fileName, imageBytes);
+        byte[] compressedImageBytes = compressImage(imageBytes);
+        downloadCache.put(fileName, compressedImageBytes);
         return this.baseUrl + "/downloads/" + fileName;
     }
 
-    // Save framed image to cache instead of static folder
+    // Save framed image to cache with compression
     public String saveFramedImageToCache(String imageUrl, String fileName) throws IOException {
-        System.out.println("Original unframed image being saved to cache:" + imageUrl);
+        System.out.println("Saving framed image to cache: " + imageUrl);
         byte[] imageBytes = downloadImageBytes(imageUrl);
-        framedCache.put(fileName, imageBytes);
-        System.out.println("Original unframed image saved to cache!");
+        byte[] compressedImageBytes = compressImage(imageBytes);
+        framedCache.put(fileName, compressedImageBytes);
         return this.baseUrl + "/framed/" + fileName;
     }
 
-    // Get framed image URL from cache instead of static folder
-    public String getFramedImageURLFromCache(byte[] imageBytes, String fileName) {
-        framedCache.put(fileName, imageBytes);
+    // Get framed image URL from cache
+    public String getFramedImageURLFromCache(byte[] imageBytes, String fileName) throws IOException {
+        byte[] compressedImageBytes = compressImage(imageBytes);
+        framedCache.put(fileName, compressedImageBytes);
         return this.baseUrl + "/framed/" + fileName;
     }
 
-    // Save framed cropped image to cache instead of static folder
-    public String saveFramedCroppedImageToCache(byte[] imageBytes, String fileName) {
-        framedCroppedCache.put(fileName, imageBytes);
+    // Save framed cropped image to cache with compression
+    public String saveFramedCroppedImageToCache(byte[] imageBytes, String fileName) throws IOException {
+        byte[] compressedImageBytes = compressImage(imageBytes);
+        framedCroppedCache.put(fileName, compressedImageBytes);
         return this.baseUrl + "/framedcropped/" + fileName;
     }
 
@@ -101,5 +86,25 @@ public class LocalImageService {
         } catch (IOException e) {
             throw new IOException("Error downloading file from URL: " + imageUrl, e);
         }
+    }
+
+    // Helper method to compress image
+    private byte[] compressImage(byte[] imageBytes) throws IOException {
+        try (InputStream inputStream = new ByteArrayInputStream(imageBytes);
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            BufferedImage image = ImageIO.read(inputStream);
+            ImageIO.write(image, "png", outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    // Scheduled task to clear all caches every hour
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.HOURS)
+    public void clearAllCaches() {
+        System.out.println("Clearing all caches to free memory.");
+        imageCache.clear();
+        downloadCache.clear();
+        framedCache.clear();
+        framedCroppedCache.clear();
     }
 }

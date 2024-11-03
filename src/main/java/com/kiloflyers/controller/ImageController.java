@@ -71,6 +71,8 @@ public class ImageController {
 	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
           byte[] imageBytes = localImageService.downloadCache.get(name);
+          
+          
 
           // Determine media type based on file extension
           String fileExtension = getFileExtension(name);
