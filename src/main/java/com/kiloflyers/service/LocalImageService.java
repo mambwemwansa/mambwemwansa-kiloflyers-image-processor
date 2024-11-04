@@ -54,7 +54,9 @@ public class LocalImageService {
         byte[] imageBytes = downloadImageBytes(imageUrl);
         byte[] compressedImageBytes = compressImage(imageBytes);
         ImageEntity imageEntity = new ImageEntity(fileName,"downloads",compressedImageBytes);
-        imageRepository.save(imageEntity);
+        if (imageRepository.save(imageEntity)!=null) {
+            System.out.println("Saved downloaded image to database: " + fileName);
+		}
         return this.baseUrl + "/downloads/" + fileName;
     }
 
@@ -64,7 +66,9 @@ public class LocalImageService {
         byte[] imageBytes = downloadImageBytes(imageUrl);
         byte[] compressedImageBytes = compressImage(imageBytes);
         ImageEntity imageEntity = new ImageEntity(fileName,"framed", compressedImageBytes);
-        imageRepository.save(imageEntity);
+        if (imageRepository.save(imageEntity)!=null) {
+            System.out.println("Saved framed image to Database: " + fileName);
+		}
         return this.baseUrl + "/framed/" + fileName;
     }
 
@@ -72,7 +76,9 @@ public class LocalImageService {
     public String getFramedImageURLFromCache(byte[] imageBytes, String fileName) throws IOException {
         byte[] compressedImageBytes = compressImage(imageBytes);
         ImageEntity imageEntity = new ImageEntity(fileName,"framed", compressedImageBytes);
-        imageRepository.save(imageEntity);
+        if (imageRepository.save(imageEntity)!=null) {
+            System.out.println("Saved framed image to Database: " + fileName);
+		}
         return this.baseUrl + "/framed/" + fileName;
     }
 
@@ -80,8 +86,10 @@ public class LocalImageService {
     public String saveFramedCroppedImageToCache(byte[] imageBytes, String fileName) throws IOException {
         byte[] compressedImageBytes = compressImage(imageBytes);
         ImageEntity imageEntity = new ImageEntity(fileName,"framedcropped", compressedImageBytes);
-        imageRepository.save(imageEntity);
-        return this.baseUrl + "/framedcropped/" + fileName;
+        if (imageRepository.save(imageEntity)!=null) {
+            System.out.println("Saved framed cropped image to Database: " + fileName);
+		}
+		return this.baseUrl + "/framedcropped/" + fileName;
     }
 
     // Helper method to download image bytes from URL
