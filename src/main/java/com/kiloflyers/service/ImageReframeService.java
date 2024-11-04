@@ -281,7 +281,7 @@ public class ImageReframeService {
 
 		// Define the target scale factor to make the subject image appear larger on the
 		// canvas
-		double scaleFactor = 6.0; // Adjust this scale factor to control the size on the canvas
+		double scaleFactor = 4.0; // Adjust this scale factor to control the size on the canvas
 
 		// Calculate new dimensions for the original image based on the scale factor
 		int targetWidth = (int) (originalImage.getWidth() * scaleFactor);
