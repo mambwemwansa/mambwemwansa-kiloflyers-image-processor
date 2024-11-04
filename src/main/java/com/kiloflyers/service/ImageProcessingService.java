@@ -11,6 +11,8 @@ import com.kiloflyers.service.LocalImageService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import kong.unirest.GetRequest;
 import kong.unirest.HttpRequestWithBody;
 import kong.unirest.HttpResponse;
@@ -116,6 +118,7 @@ public class ImageProcessingService {
 		
 		
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
+		
 		String backgroundRemovedImageUrl = callRemoveBgApi(originalImageUrl,
 				newFileName);
 		System.out
@@ -203,15 +206,30 @@ public class ImageProcessingService {
 
 	private String callRemoveBgApi(String imageUrl, String filename) {
 
-		System.out.println("Calling background removal API: " + imageUrl);
-		try {
-			byte[] segmentedImage = this.imageSegmentationService.segmentImage(imageUrl, filename);
-			String url = this.localImageService.saveImageToCache(segmentedImage, filename);
-			return url;
-		} catch (IOException e) {
-			System.err.println("Error during image segmentation: " + e.getMessage());
-			return null;
-		}
+	    System.out.println("Calling background removal API: " + imageUrl);
+	    try {
+	        Optional<byte[]> optionalSegmentedImage = Optional.ofNullable(localImageService.getImageFromRepo("images", filename));
+	        
+	        byte[] segmentedImage = optionalSegmentedImage.orElseGet(() -> {
+	            try {
+	                return this.imageSegmentationService.segmentImage(imageUrl, filename);
+	            } catch (IOException e) {
+	                System.err.println("Error during image segmentation: " + e.getMessage());
+	                return null;
+	            }
+	        });
+	        
+	        if (segmentedImage == null) {
+	            return null; // Return null if segmentation failed
+	        }
+	        
+	        String url = this.localImageService.saveImageToCache(segmentedImage, filename);
+	        return url;
+	        
+	    } catch (IOException e) {
+	        System.err.println("Error during image processing: " + e.getMessage());
+	        return null;
+	    }
 	}
 
 	public void updateRecords(List<AirtableRecord> records) {

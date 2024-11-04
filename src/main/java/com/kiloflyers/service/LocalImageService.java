@@ -30,10 +30,12 @@ public class LocalImageService {
 
     // Compress and save image bytes to the image database
     public String saveImageToCache(byte[] imageBytes, String fileName) throws IOException {
-        byte[] compressedImageBytes = compressImage(imageBytes);
-        ImageEntity imageEntity = new ImageEntity(fileName,"images", compressedImageBytes);
-        imageRepository.save(imageEntity);
-        return this.baseUrl + "/images/" + fileName;
+        if (imageRepository.findByFileName(fileName)==null) {
+			byte[] compressedImageBytes = compressImage(imageBytes);
+			ImageEntity imageEntity = new ImageEntity(fileName, "images", compressedImageBytes);
+			imageRepository.save(imageEntity);
+		}
+		return this.baseUrl + "/images/" + fileName;
     }
 
     // Check if a file exists in the classpath
@@ -111,9 +113,10 @@ public class LocalImageService {
         imageRepository.deleteAll();
     }
     
-    public  byte[] getImageFromRepo(String context, String filename) {
-    	
-    	
-		return imageRepository.findByFileNameAndType(filename,context).get(0).getImageData();
-	}
+    public byte[] getImageFromRepo(String context, String filename) { 
+        return imageRepository.findFirstByFileNameAndType(filename, context)
+                              .map(ImageEntity::getImageData)
+                              .orElse(null);
+    }
+
 }
