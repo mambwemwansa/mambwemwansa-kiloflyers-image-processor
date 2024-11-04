@@ -1,6 +1,7 @@
 package com.kiloflyers.controller;
 
 import com.kiloflyers.model.AirtableRecord;
+import com.kiloflyers.repository.ImageRepository;
 import com.kiloflyers.service.ImageProcessingService;
 import com.kiloflyers.service.ImageReframeService;
 import com.kiloflyers.service.ImageSegmentationService;
@@ -34,6 +35,10 @@ public class ImageController {
   private ImageReframeService imageReframeService;
   @Autowired
   private LocalImageService localImageService;
+  
+
+  @Autowired
+  private ImageRepository imageRepository;
 
   
 //  @GetMapping({"/"})
@@ -70,7 +75,7 @@ public class ImageController {
   public ResponseEntity<ByteArrayResource> getCachedDownloads(@PathVariable String name) {
 	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
-          byte[] imageBytes = localImageService.downloadCache.get(name);
+          byte[] imageBytes = localImageService.getImageFromRepo("downloads",name);
           
           
 
@@ -94,7 +99,7 @@ public class ImageController {
   public ResponseEntity<ByteArrayResource> getCachedImage(@PathVariable String name) {
 	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
-          byte[] imageBytes = localImageService.imageCache.get(name);
+          byte[] imageBytes = localImageService.getImageFromRepo("images",name);
 
           // Determine media type based on file extension
           String fileExtension = getFileExtension(name);
@@ -117,7 +122,7 @@ public class ImageController {
   public ResponseEntity<ByteArrayResource> getCachedFramed(@PathVariable String name) {
 	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
-          byte[] imageBytes = localImageService.framedCache.get(name);
+          byte[] imageBytes = localImageService.getImageFromRepo("framed",name);
 
           // Determine media type based on file extension
           String fileExtension = getFileExtension(name);
@@ -139,7 +144,7 @@ public class ImageController {
   public ResponseEntity<ByteArrayResource> getCachedFramedCropped(@PathVariable String name) {
 	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
       try {
-          byte[] imageBytes = localImageService.framedCroppedCache.get(name);
+          byte[] imageBytes = localImageService.getImageFromRepo("framedcropped",name);
 
           // Determine media type based on file extension
           String fileExtension = getFileExtension(name);

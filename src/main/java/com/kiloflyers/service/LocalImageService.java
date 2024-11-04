@@ -13,8 +13,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import com.kiloflyers.util.LimitedCache;
+import com.kiloflyers.model.ImageEntity;
+import com.kiloflyers.repository.ImageRepository;
 
 @Service
 public class LocalImageService {
@@ -22,16 +25,14 @@ public class LocalImageService {
     @Value("${base-url}")
     private String baseUrl;
 
-    // Define caches with a max size of 50 entries each to prevent excessive memory use
-    public final LimitedCache<String, byte[]> imageCache = new LimitedCache<>(50);
-    public final LimitedCache<String, byte[]> downloadCache = new LimitedCache<>(50);
-    public final LimitedCache<String, byte[]> framedCache = new LimitedCache<>(50);
-    public final LimitedCache<String, byte[]> framedCroppedCache = new LimitedCache<>(50);
+    @Autowired
+    private ImageRepository imageRepository;
 
-    // Compress and save image bytes to the image cache
+    // Compress and save image bytes to the image database
     public String saveImageToCache(byte[] imageBytes, String fileName) throws IOException {
         byte[] compressedImageBytes = compressImage(imageBytes);
-        imageCache.put(fileName, compressedImageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"images", compressedImageBytes);
+        imageRepository.save(imageEntity);
         return this.baseUrl + "/images/" + fileName;
     }
 
@@ -50,7 +51,8 @@ public class LocalImageService {
     public String downloadImageToCache(String imageUrl, String fileName) throws IOException {
         byte[] imageBytes = downloadImageBytes(imageUrl);
         byte[] compressedImageBytes = compressImage(imageBytes);
-        downloadCache.put(fileName, compressedImageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"downloads",compressedImageBytes);
+        imageRepository.save(imageEntity);
         return this.baseUrl + "/downloads/" + fileName;
     }
 
@@ -59,21 +61,24 @@ public class LocalImageService {
         System.out.println("Saving framed image to cache: " + imageUrl);
         byte[] imageBytes = downloadImageBytes(imageUrl);
         byte[] compressedImageBytes = compressImage(imageBytes);
-        framedCache.put(fileName, compressedImageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"framed", compressedImageBytes);
+        imageRepository.save(imageEntity);
         return this.baseUrl + "/framed/" + fileName;
     }
 
     // Get framed image URL from cache
     public String getFramedImageURLFromCache(byte[] imageBytes, String fileName) throws IOException {
         byte[] compressedImageBytes = compressImage(imageBytes);
-        framedCache.put(fileName, compressedImageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"framed", compressedImageBytes);
+        imageRepository.save(imageEntity);
         return this.baseUrl + "/framed/" + fileName;
     }
 
     // Save framed cropped image to cache with compression
     public String saveFramedCroppedImageToCache(byte[] imageBytes, String fileName) throws IOException {
         byte[] compressedImageBytes = compressImage(imageBytes);
-        framedCroppedCache.put(fileName, compressedImageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"framedcropped", compressedImageBytes);
+        imageRepository.save(imageEntity);
         return this.baseUrl + "/framedcropped/" + fileName;
     }
 
@@ -98,13 +103,17 @@ public class LocalImageService {
         }
     }
 
-    // Scheduled task to clear all caches every hour
+    // Scheduled task to clear all images from the database
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.HOURS)
+    @Transactional
     public void clearAllCaches() {
         System.out.println("Clearing all caches to free memory.");
-        imageCache.clear();
-        downloadCache.clear();
-        framedCache.clear();
-        framedCroppedCache.clear();
+        imageRepository.deleteAll();
     }
+    
+    public  byte[] getImageFromRepo(String context, String filename) {
+    	
+    	
+		return imageRepository.findByFileNameAndType(filename,context).get(0).getImageData();
+	}
 }
