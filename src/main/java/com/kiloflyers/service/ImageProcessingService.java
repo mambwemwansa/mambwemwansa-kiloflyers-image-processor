@@ -151,7 +151,7 @@ public class ImageProcessingService {
 			System.out.println("unframed Image locally saved in :" + framedUrl);
 			
 			
-			finalframedUrl = imageReframeService.reframeImageFromUrl(framedUrl,
+			finalframedUrl = imageReframeService.reframeImage(framedUrl,
 					newFileName);
 
 			System.out.println("Framed Image has been succesfully and stored in :" + finalframedUrl);

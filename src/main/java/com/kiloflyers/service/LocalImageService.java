@@ -31,8 +31,8 @@ public class LocalImageService {
     // Compress and save image bytes to the image database
     public String saveImageToCache(byte[] imageBytes, String fileName) throws IOException {
         if (imageRepository.findByFileName(fileName)==null) {
-			byte[] compressedImageBytes = compressImage(imageBytes);
-			ImageEntity imageEntity = new ImageEntity(fileName, "images", compressedImageBytes);
+			//byte[] compressedImageBytes = compressImage(imageBytes);
+			ImageEntity imageEntity = new ImageEntity(fileName, "images", imageBytes);
 			imageRepository.save(imageEntity);
 		}
 		return this.baseUrl + "/images/" + fileName;
@@ -52,8 +52,8 @@ public class LocalImageService {
     // Download and cache compressed image bytes
     public String downloadImageToCache(String imageUrl, String fileName) throws IOException {
         byte[] imageBytes = downloadImageBytes(imageUrl);
-        byte[] compressedImageBytes = compressImage(imageBytes);
-        ImageEntity imageEntity = new ImageEntity(fileName,"downloads",compressedImageBytes);
+        //byte[] compressedImageBytes = compressImage(imageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"downloads",imageBytes);
         if (imageRepository.save(imageEntity)!=null) {
             System.out.println("Saved downloaded image to database: " + fileName);
 		}
@@ -64,8 +64,8 @@ public class LocalImageService {
     public String saveFramedImageToCache(String imageUrl, String fileName) throws IOException {
         System.out.println("Saving framed image to cache: " + imageUrl);
         byte[] imageBytes = downloadImageBytes(imageUrl);
-        byte[] compressedImageBytes = compressImage(imageBytes);
-        ImageEntity imageEntity = new ImageEntity(fileName,"framed", compressedImageBytes);
+       // byte[] compressedImageBytes = compressImage(imageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"framed", imageBytes);
         if (imageRepository.save(imageEntity)!=null) {
             System.out.println("Saved framed image to Database: " + fileName);
 		}
@@ -74,8 +74,8 @@ public class LocalImageService {
 
     // Get framed image URL from cache
     public String getFramedImageURLFromCache(byte[] imageBytes, String fileName) throws IOException {
-        byte[] compressedImageBytes = compressImage(imageBytes);
-        ImageEntity imageEntity = new ImageEntity(fileName,"framed", compressedImageBytes);
+       // byte[] compressedImageBytes = compressImage(imageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"framed", imageBytes);
         if (imageRepository.save(imageEntity)!=null) {
             System.out.println("Saved framed image to Database: " + fileName);
 		}
@@ -84,8 +84,8 @@ public class LocalImageService {
 
     // Save framed cropped image to cache with compression
     public String saveFramedCroppedImageToCache(byte[] imageBytes, String fileName) throws IOException {
-        byte[] compressedImageBytes = compressImage(imageBytes);
-        ImageEntity imageEntity = new ImageEntity(fileName,"framedcropped", compressedImageBytes);
+        //byte[] compressedImageBytes = compressImage(imageBytes);
+        ImageEntity imageEntity = new ImageEntity(fileName,"framedcropped", imageBytes);
         if (imageRepository.save(imageEntity)!=null) {
             System.out.println("Saved framed cropped image to Database: " + fileName);
 		}
@@ -104,7 +104,7 @@ public class LocalImageService {
     }
 
     // Helper method to compress image
-    private byte[] compressImage(byte[] imageBytes) throws IOException {
+    private byte[] compressImage1(byte[] imageBytes) throws IOException {
         try (InputStream inputStream = new ByteArrayInputStream(imageBytes);
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             BufferedImage image = ImageIO.read(inputStream);
