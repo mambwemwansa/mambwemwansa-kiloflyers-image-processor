@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -275,40 +276,42 @@ public class ImageReframeService {
 	}
 
 	public BufferedImage mergeImageWithCanvas(BufferedImage originalImage) {
-		// Define the canvas dimensions (4360x4360) with transparency
-		int canvasWidth = 4360;
-		int canvasHeight = 4360;
+	    // Define the canvas dimensions
+	    int canvasWidth = 4360;
+	    int canvasHeight = 4360;
 
-		// Define the target scale factor to make the subject image appear larger on the
-		// canvas
-		double scaleFactor = 4.0; // Adjust this scale factor to control the size on the canvas
+	    // Scale factor to make the subject image larger on the canvas
+	    double scaleFactor = 2.5;
 
-		// Calculate new dimensions for the original image based on the scale factor
-		int targetWidth = (int) (originalImage.getWidth() * scaleFactor);
-		int targetHeight = (int) (originalImage.getHeight() * scaleFactor);
+	    // Calculate new dimensions, ensuring no overflow
+	    int targetWidth = Math.min((int) (originalImage.getWidth() * scaleFactor), canvasWidth);
+	    int targetHeight = Math.min((int) (originalImage.getHeight() * scaleFactor), canvasHeight);
 
-		// Create a transparent canvas
-		BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = canvas.createGraphics();
+	    // Create a transparent canvas
+	    BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g = canvas.createGraphics();
 
-		// Enable anti-aliasing and transparency for smooth rendering
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setComposite(AlphaComposite.SrcOver);
+	    // Enable anti-aliasing and high-quality rendering
+	    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+	    g.setComposite(AlphaComposite.SrcOver);
 
-		// Scale the original image to the target size
-		Image scaledImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+	    // Use AffineTransform for high-quality scaling
+	    AffineTransform transform = new AffineTransform();
+	    transform.scale(scaleFactor, scaleFactor);
 
-		// Calculate the centered position
-		int x = (canvasWidth - targetWidth) / 2;
+	    // Calculate centered position
+	    int x = (canvasWidth - targetWidth) / 2;
 
-		// Adjust vertical position to align with desired eye level
-		int yOffsetFromTop = 950 - 644; // Offset based on the example's eye level
-		int y = yOffsetFromTop;
+	    // Calculate y position based on desired eye level offset
+	    int yOffsetFromTop = 306; // Adjust this value based on testing
+	    int y = yOffsetFromTop;
 
-		// Draw the scaled image onto the canvas at the calculated position
-		g.drawImage(scaledImage, x, y, null);
-		g.dispose();
+	    // Draw scaled image onto the canvas
+	    g.drawImage(originalImage, x, y, targetWidth, targetHeight, null);
+	    g.dispose();
 
-		return canvas;
+	    return canvas;
 	}
+
 }
