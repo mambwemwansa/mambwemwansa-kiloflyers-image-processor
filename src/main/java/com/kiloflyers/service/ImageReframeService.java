@@ -83,7 +83,7 @@ public class ImageReframeService {
 	 * @return the URL path to the saved image
 	 * @throws IOException if an error occurs during image processing
 	 */
-	public String reframeImageFromUrl(String imagePath, String fileName) throws IOException {
+	public String reframeImageFromUrl1(String imagePath, String fileName) throws IOException {
 		BufferedImage originalImage = loadImageFromLocalPath(imagePath);
 		BufferedImage reframedImage = mergeImageWithCanvas(originalImage);
 

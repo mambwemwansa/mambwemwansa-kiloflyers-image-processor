@@ -61,7 +61,7 @@ public class LocalImageService {
     }
 
     // Save framed image to cache with compression
-    public String saveFramedImageToCache(String imageUrl, String fileName) throws IOException {
+    public String saveFramedImageToCache1(String imageUrl, String fileName) throws IOException {
         System.out.println("Saving framed image to cache: " + imageUrl);
         byte[] imageBytes = downloadImageBytes(imageUrl);
        // byte[] compressedImageBytes = compressImage(imageBytes);

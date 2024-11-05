@@ -146,12 +146,12 @@ public class ImageProcessingService {
         String newFileName = filename.replaceFirst("[.][^.]+$", "") + newExtension;
 		String originalImageUrl = ((Image) originalImages.get(0)).getUrl();
 		try {
-			framedUrl = localImageService.saveFramedImageToCache(originalImageUrl,
-					((Image) originalImages.get(0)).getFilename());
-			System.out.println("unframed Image locally saved in :" + framedUrl);
+			//framedUrl = localImageService.saveFramedImageToCache1(originalImageUrl,
+			//		((Image) originalImages.get(0)).getFilename());
+			System.out.println("unframed Image ready to be reframed :" + originalImageUrl);
 			
 			
-			finalframedUrl = imageReframeService.reframeImage(framedUrl,
+			finalframedUrl = imageReframeService.reframeImage(originalImageUrl,
 					newFileName);
 
 			System.out.println("Framed Image has been succesfully and stored in :" + finalframedUrl);
