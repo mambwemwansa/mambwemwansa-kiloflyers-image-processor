@@ -71,28 +71,25 @@ public class ImageController {
           "gif", MediaType.IMAGE_GIF
   );
 
-  @GetMapping("/downloads/{name}")
-  public ResponseEntity<ByteArrayResource> getCachedDownloads(@PathVariable String name) {
-	  name = URLDecoder.decode(name, StandardCharsets.UTF_8);
-      try {
-          byte[] imageBytes = localImageService.getImageFromRepo("downloads",name);
-          
-          
+	@GetMapping("/downloads/{name}")
+	public ResponseEntity<ByteArrayResource> getCachedDownloads(@PathVariable String name) {
+		name = URLDecoder.decode(name, StandardCharsets.UTF_8);
+		try {
+			byte[] imageBytes = localImageService.getImageFromRepo("downloads", name);
 
-          // Determine media type based on file extension
-          String fileExtension = getFileExtension(name);
-          MediaType mediaType = MEDIA_TYPE_MAP.getOrDefault(fileExtension.toLowerCase(), MediaType.APPLICATION_OCTET_STREAM);
+			// Determine media type based on file extension
+			String fileExtension = getFileExtension(name);
+			MediaType mediaType = MEDIA_TYPE_MAP.getOrDefault(fileExtension.toLowerCase(),
+					MediaType.APPLICATION_OCTET_STREAM);
 
-          ByteArrayResource resource = new ByteArrayResource(imageBytes);
-          return ResponseEntity.ok()
-                  .contentType(mediaType)
-                  .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + name + "\"")
-                  .body(resource);
+			ByteArrayResource resource = new ByteArrayResource(imageBytes);
+			return ResponseEntity.ok().contentType(mediaType)
+					.header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + name + "\"").body(resource);
 
-      } catch (IllegalArgumentException e) {
-          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-      }
-  }
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}
+	}
   
   
   @GetMapping("/images/{name}")

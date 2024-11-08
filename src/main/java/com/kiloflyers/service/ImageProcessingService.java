@@ -56,7 +56,7 @@ public class ImageProcessingService {
 	    HttpResponse<String> response = ((GetRequest) Unirest.get(url)
 	            .header("Authorization", "Bearer " + this.airtableApiKey)).asString();
 	    String jsonResponse = response.getBody();
-	    System.out.println("Raw Airtable Response: " + jsonResponse);
+	    //System.out.println("Raw Airtable Response: " + jsonResponse);
 
 	    if (response.getStatus() == 200) {
 	        ObjectMapper objectMapper = new ObjectMapper();
@@ -85,7 +85,7 @@ public class ImageProcessingService {
 	                        } else if (originalImages.isEmpty()) {
 	                            System.out.println("Original images list is empty for record ID: " + airtableRecord.getId());
 	                        } else if (fields.isProcessed()) {
-	                            System.out.println("Record ID " + airtableRecord.getId() + " has already been processed.");
+	                            //System.out.println("Record ID " + airtableRecord.getId() + " has already been processed.");
 	                        }
 	                    }
 	                } else {
