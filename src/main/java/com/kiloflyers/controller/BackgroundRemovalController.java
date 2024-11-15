@@ -25,8 +25,6 @@ public class BackgroundRemovalController {
 
     @Autowired
     private ImageBackgroundRemovalService backgroundRemovalService;
-    //@Autowired
-    //private  TensorFlowGraphOperations tensorFlowGraphOperations;
 
     @PostMapping("/remove-background")
     public ResponseEntity<byte[]> removeBackground(@RequestParam("file") MultipartFile file) {
