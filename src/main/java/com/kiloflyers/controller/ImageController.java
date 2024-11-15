@@ -41,13 +41,6 @@ public class ImageController {
   private ImageRepository imageRepository;
 
   
-//  @GetMapping({"/"})
-//  public String showImages(Model model) {
-//    List<AirtableRecord> records = this.imageProcessingService.fetchUnprocessedRecords();
-//    model.addAttribute("records", records);
-//    return "index";
-//  }
-  
   @PostMapping("/reframe")
   public ResponseEntity<byte[]> reframeImage(@RequestParam("file") MultipartFile file) {
       try {
