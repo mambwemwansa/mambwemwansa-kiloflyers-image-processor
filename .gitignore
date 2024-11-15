@@ -1,10 +1,15 @@
+# Help documentation
 HELP.md
+
+# Ignore all target directories, except specific ones
 target/
-!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# Maven Wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
+# Spring Tool Suite specific files
 .apt_generated
 .classpath
 .factorypath
@@ -13,21 +18,23 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
+# IntelliJ IDEA specific files
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# NetBeans specific files and folders
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
+
+# Gradle build directory, except specific subfolders
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# Visual Studio Code specific files
 .vscode/
