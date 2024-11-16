@@ -16,30 +16,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-//import com.kiloflyers.service.TensorFlowGraphOperations;
-import com.kiloflyers.service.ImageBackgroundRemovalService;
-
 @RestController
 @RequestMapping("/api/image")
 public class BackgroundRemovalController {
 
-    @Autowired
-    private ImageBackgroundRemovalService backgroundRemovalService;
-
-    @PostMapping("/remove-background")
-    public ResponseEntity<byte[]> removeBackground(@RequestParam("file") MultipartFile file) {
-        try {
-        	//tensorFlowGraphOperations.printGraphOperations();
-            BufferedImage image = ImageIO.read(file.getInputStream());
-            byte[] result = backgroundRemovalService.removeBackground(image);
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reframed_image.png")
-                    .contentType(MediaType.IMAGE_PNG)
-                    .body(result);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
+//    @Autowired
+//    private ImageBackgroundRemovalService backgroundRemovalService;
+//
+//    @PostMapping("/remove-background")
+//    public ResponseEntity<byte[]> removeBackground(@RequestParam("file") MultipartFile file) {
+//        try {
+//        	//tensorFlowGraphOperations.printGraphOperations();
+//            BufferedImage image = ImageIO.read(file.getInputStream());
+//            byte[] result = backgroundRemovalService.removeBackground(image);
+//            return ResponseEntity.ok()
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reframed_image.png")
+//                    .contentType(MediaType.IMAGE_PNG)
+//                    .body(result);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//        }
+//    }
 }
 
