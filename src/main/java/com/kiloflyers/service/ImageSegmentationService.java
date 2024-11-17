@@ -23,6 +23,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+
+import java.util.Base64;
+
 @Service
 public class ImageSegmentationService {
 	@Value("${photoroom.api.url}")
@@ -34,33 +37,39 @@ public class ImageSegmentationService {
 	@Autowired
 	LocalImageService localImageService;
 
-    public byte[] segmentImage(String urlToFile, String filename) throws IOException {
-        // Download the image to a temporary file
-        File file = downloadImageToTempFile(urlToFile,filename);
-        if (!file.exists()) {
-            throw new FileNotFoundException("File not found at " + urlToFile);
-        }
+	public byte[] segmentImage(String urlToFile, String filename) throws IOException {
+	    // Download the image to a temporary file
+	    File file = downloadImageToTempFile(urlToFile, filename);
+	    if (!file.exists()) {
+	        throw new FileNotFoundException("File not found at " + urlToFile);
+	    }
 
-        // Send the image file in a multipart request with Unirest
-        HttpResponse<byte[]> response = Unirest.post(apiUrl)
-                .header("x-api-key", apiKey)
-                .header("Accept", "image/png")
-                .field("image_file", file) // Add the image file to the form data
-                .asBytes(); // Expect the response as a byte array
+	    // Send the image file in a multipart request with Unirest
+	    HttpResponse<byte[]> response = Unirest.post(apiUrl)
+	            .header("x-api-key", apiKey)
+	            .header("Accept", "image/png")
+	            .field("image_file", file) // Add the image file to the form data
+	            .asBytes(); // Expect the response as a byte array
 
-        // Delete the temporary file after processing
-        if (!file.delete()) {
-            System.err.println("Warning: Temporary file not deleted " + file.getAbsolutePath());
-        }
+	    // Delete the temporary file after processing
+	    if (!file.delete()) {
+	        System.err.println("Warning: Temporary file not deleted " + file.getAbsolutePath());
+	    }
 
-        // Return the image data if the request is successful
-        if (response.isSuccess()) {
-        	System.out.println("Background removal API response: "+response.getBody().toString());
-            return response.getBody();
-        } else {
-            throw new IOException("Failed to segment image: " + response.getStatusText());
-        }
-    }
+	    // Return the image data if the request is successful
+	    if (response.isSuccess()) {
+	        // Print the response as a base64-encoded string for better readability
+	        String base64Response = Base64.getEncoder().encodeToString(response.getBody());
+	        System.out.println("Background removal API response (base64): " + base64Response);
+	        
+	        // Optionally, print the length of the byte array
+	        System.out.println("Response length: " + response.getBody().length + " bytes");
+	        
+	        return response.getBody();
+	    } else {
+	        throw new IOException("Failed to segment image: " + response.getStatusText());
+	    }
+	}
 
     public File downloadImageToTempFile(String imageUrl, String filename) throws IOException {
         // Generate a unique temporary file with the given prefix and suffix
