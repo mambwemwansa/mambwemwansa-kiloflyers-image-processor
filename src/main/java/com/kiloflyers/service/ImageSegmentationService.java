@@ -36,7 +36,7 @@ public class ImageSegmentationService {
 
     public byte[] segmentImage(String urlToFile, String filename) throws IOException {
         // Download the image to a temporary file
-        File file = downloadImageToTempFile(urlToFile);
+        File file = downloadImageToTempFile(urlToFile,filename);
         if (!file.exists()) {
             throw new FileNotFoundException("File not found at " + urlToFile);
         }
@@ -61,9 +61,9 @@ public class ImageSegmentationService {
         }
     }
 
-    public File downloadImageToTempFile(String imageUrl) throws IOException {
+    public File downloadImageToTempFile(String imageUrl, String filename) throws IOException {
         // Generate a unique temporary file with the given prefix and suffix
-        File tempFile = File.createTempFile(UUID.randomUUID().toString(), ".png");
+        File tempFile = File.createTempFile(filename, ".png");
 
         // Ensure the temporary file is deleted when the program exits
         tempFile.deleteOnExit();
