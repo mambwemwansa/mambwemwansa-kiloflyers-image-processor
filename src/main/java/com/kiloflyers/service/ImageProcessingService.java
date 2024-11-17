@@ -205,27 +205,30 @@ public class ImageProcessingService {
 	}
 
 	private String callRemoveBgApi(String imageUrl, String filename) {
-
+	    
 	    System.out.println("Calling background removal API: " + imageUrl);
 	    try {
 	        Optional<byte[]> optionalSegmentedImage = Optional.ofNullable(localImageService.getImageFromRepo("images", filename));
-	        
-	        byte[] segmentedImage = optionalSegmentedImage.orElseGet(() -> {
+	        byte[] segmentedImage;
+
+	        if (optionalSegmentedImage.isPresent()) {
+	            segmentedImage = optionalSegmentedImage.get();
+	        } else {
 	            try {
-	                return this.imageSegmentationService.segmentImage(imageUrl, filename);
+	                segmentedImage = this.imageSegmentationService.segmentImage(imageUrl, filename);
 	            } catch (IOException e) {
 	                System.err.println("Error during image segmentation: " + e.getMessage());
-	                return null;
+	                segmentedImage = null;
 	            }
-	        });
-	        
+	        }
+
 	        if (segmentedImage == null) {
 	            return null; // Return null if segmentation failed
 	        }
-	        
+
 	        String url = this.localImageService.saveImageToCache(segmentedImage, filename);
 	        return url;
-	        
+
 	    } catch (IOException e) {
 	        System.err.println("Error during image processing: " + e.getMessage());
 	        return null;
