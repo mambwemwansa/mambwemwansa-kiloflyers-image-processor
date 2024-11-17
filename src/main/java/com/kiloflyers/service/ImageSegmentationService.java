@@ -55,7 +55,7 @@ public class ImageSegmentationService {
 
         // Return the image data if the request is successful
         if (response.isSuccess()) {
-        	System.out.println("Background removal API response: "+response.getBody());
+        	System.out.println("Background removal API response: "+response.getBody().toString());
             return response.getBody();
         } else {
             throw new IOException("Failed to segment image: " + response.getStatusText());
