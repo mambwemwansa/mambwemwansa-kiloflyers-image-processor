@@ -33,7 +33,10 @@ public class LocalImageService {
         if (imageRepository.findByFileName(fileName)==null) {
 			//byte[] compressedImageBytes = compressImage(imageBytes);
 			ImageEntity imageEntity = new ImageEntity(fileName, "images", imageBytes);
-			imageRepository.save(imageEntity);
+			if (imageRepository.save(imageEntity)!=null) {
+				
+				System.out.println("background removed image saved!: base-url: "+this.baseUrl + "/images/" + fileName);
+			}
 		}
 		return this.baseUrl + "/images/" + fileName;
     }
